@@ -291,6 +291,22 @@ const gid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const td  = () => new Date().toISOString().slice(0,10);
 const money = n => '₹'+(n||0).toLocaleString('en-IN');
 const mk  = () => `${S.year}-${S.month}`;
+// Billing month = the month BEFORE the selected month (rent for Jan is collected in Feb)
+function billMk(){
+  let m=S.month-1, y=S.year;
+  if(m<0){m=11;y--;}
+  return `${y}-${m}`;
+}
+function billLabel(){
+  let m=S.month-1, y=S.year;
+  if(m<0){m=11;y--;}
+  return `${SMONTHS[m]} ${y}`;
+}
+function billLabelFull(){
+  let m=S.month-1, y=S.year;
+  if(m<0){m=11;y--;}
+  return `${MONTHS[m]} ${y}`;
+}
 
 function toast(msg,ms=2400){const t=$('tst');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),ms)}
 function sync(on){$('syn').style.display=on?'inline':'none'}
@@ -455,7 +471,7 @@ function renderView(){
 
 /* DASHBOARD */
 function rDash(){
-  const k=mk();
+  const bk=billMk();  // billing month = prev month
   $('ml').textContent=`${MONTHS[S.month]} ${S.year}`;
 
   // Counts
@@ -464,13 +480,13 @@ function rDash(){
   const occupied=allRooms.filter(r=>S.data.tenants.some(t=>t.roomId===r.id&&t.active)).length;
   const vacant=allRooms.length-occupied;
 
-  // Money
+  // Money — collected this month towards billing month rent
   const active=S.data.tenants.filter(t=>t.active);
   const due=active.reduce((s,t)=>{const r=S.data.rooms.find(r=>r.id===t.roomId);return s+(r?.rent||0)},0);
-  const coll=S.data.payments.filter(p=>p.monthKey===k).reduce((s,p)=>s+p.amount,0);
+  const coll=S.data.payments.filter(p=>p.monthKey===bk).reduce((s,p)=>s+p.amount,0);
   const pend=Math.max(0,due-coll);
 
-  // Behind = tenants with cumulative outstanding balance
+  // Behind = tenants with cumulative outstanding balance (up to billing month)
   const behind=active.filter(t=>tenantBalance(t.id)>0);
 
   // KPI row 1 — property overview
@@ -479,8 +495,9 @@ function rDash(){
     <div class="kp e"><div class="kv">${occupied}</div><div class="kl">Occupied</div></div>
     <div class="kp" style="background:rgba(148,163,184,.07);border-color:var(--bdr)"><div class="kv" style="color:var(--tx2)">${vacant}</div><div class="kl">Vacant</div></div>`;
 
-  // KPI row 2 — money overview
+  // KPI row 2 — money overview (for billing month)
   $('ps').innerHTML=`
+    <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;text-align:center">Rent for <strong style="color:var(--tx2)">${billLabelFull()}</strong> — collected in ${MONTHS[S.month]}</div>
     <div class="kr" style="margin-bottom:16px">
       <div class="kp e"><div class="kv">${money(coll)}</div><div class="kl">Collected</div></div>
       <div class="kp a"><div class="kv">${money(pend)}</div><div class="kl">Pending</div></div>
@@ -509,7 +526,7 @@ function rDash(){
         <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
           <div style="text-align:right">
             <div style="font-weight:700;font-size:13px;color:var(--am)">${money(bal)}</div>
-            <div style="font-size:10px;color:var(--tx3)">balance</div>
+            <div style="font-size:10px;color:var(--tx3)">pending</div>
           </div>
           <button onclick="openPaymentFor('${rm?.id}')"
             style="background:var(--em-bg);color:var(--em);border:1px solid rgba(52,211,153,.3);font-family:'Sora',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;border-radius:99px;cursor:pointer;white-space:nowrap">
@@ -518,19 +535,19 @@ function rDash(){
         </div>
       </div>`;
     }).join('');
-    $('dp').innerHTML=`<div class="sl">Outstanding — ${SMONTHS[S.month]} ${S.year}</div>
+    $('dp').innerHTML=`<div class="sl">Outstanding as of ${billLabel()}</div>
       <div class="cd" style="padding:4px 16px">${rows}</div>`;
   } else if(active.length){
     $('dp').innerHTML=`<div class="cd" style="border-color:rgba(52,211,153,.25);text-align:center;padding:18px">
       <div style="font-size:22px">✓</div>
-      <div style="font-size:13px;color:var(--em);margin-top:4px;font-weight:600">All caught up for ${SMONTHS[S.month]}!</div>
+      <div style="font-size:13px;color:var(--em);margin-top:4px;font-weight:600">All caught up through ${billLabel()}!</div>
     </div>`;
   } else $('dp').innerHTML='';
 
-  // Recent payments
-  const rec=S.data.payments.filter(p=>p.monthKey===k).slice(-5).reverse();
+  // Recent payments recorded for billing month
+  const rec=S.data.payments.filter(p=>p.monthKey===bk).slice(-5).reverse();
   if(rec.length){
-    $('dr').innerHTML='<div class="sl" style="margin-top:6px">Recent Payments</div><div class="cd" style="padding:4px 16px">'+rec.map(pay=>{
+    $('dr').innerHTML=`<div class="sl" style="margin-top:6px">Payments Received — ${billLabel()}</div><div class="cd" style="padding:4px 16px">`+rec.map(pay=>{
       const rm=S.data.rooms.find(r=>r.id===pay.roomId);
       const tn=S.data.tenants.find(t=>t.id===pay.tenantId);
       const pr=rm?S.data.properties.find(p=>p.id===rm.propertyId):null;
@@ -619,7 +636,7 @@ function rProp(){
 function rRoom(){
   const room=S.data.rooms.find(r=>r.id===S.roomId);if(!room)return;
   const tenant=S.data.tenants.find(t=>t.roomId===S.roomId&&t.active);
-  const k=mk();
+  const k=billMk();
   const paid=S.data.payments.filter(p=>p.roomId===S.roomId&&p.monthKey===k).reduce((s,p)=>s+p.amount,0);
   const bal=Math.max(0,(room.rent||0)-paid);
   const mPays=S.data.payments.filter(p=>p.roomId===S.roomId&&p.monthKey===k);
@@ -656,7 +673,7 @@ function rRoom(){
       </div></div>`).join('');
     h+=`<div class="cd" style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div class="sl" style="margin:0">Rent — ${SMONTHS[S.month]} ${S.year}</div>
+        <div class="sl" style="margin:0">Rent for ${billLabel()}</div>
         <button class="cbtn" onclick="openModal('payment')">+ Collect</button>
       </div>
       <div class="s3">
@@ -681,15 +698,15 @@ function rRoom(){
 
 /* ── MODAL ─────────────────────────────────────────── */
 
-// Cumulative balance for a tenant = total rent owed since moveIn minus all payments ever made
+// Cumulative balance = total rent owed from moveIn up to billing month (prev month) minus all payments
 function tenantBalance(tenantId){
   const t=S.data.tenants.find(x=>x.id===tenantId);if(!t)return 0;
   const room=S.data.rooms.find(r=>r.id===t.roomId);if(!room)return 0;
   const moveIn=new Date(t.moveIn);
-  const now=new Date();
-  // Count months from moveIn to current selected month (inclusive)
+  // Billing month = selected month - 1
+  let toM=S.month-1, toY=S.year;
+  if(toM<0){toM=11;toY--;}
   const fromY=moveIn.getFullYear(), fromM=moveIn.getMonth();
-  const toY=S.year, toM=S.month;
   const totalMonths=(toY-fromY)*12+(toM-fromM)+1;
   const totalDue=Math.max(0,totalMonths)*(room.rent||0);
   const totalPaid=S.data.payments.filter(p=>p.roomId===room.id).reduce((s,p)=>s+p.amount,0);
@@ -707,9 +724,8 @@ function openModal(type, editId=null){
   if(et) mState.leaseType = et.leaseType||'open';
 
   if(type==='collect'){
-    // Collect rent from dashboard — pick tenant, show cumulative balance
     const active=S.data.tenants.filter(t=>t.active);
-    $('mtl').textContent='Collect Rent';
+    $('mtl').textContent=`Collect Rent — ${billLabel()}`;
     if(!active.length){
       $('mb').innerHTML=`<div style="text-align:center;padding:20px;color:var(--tx3)">No active tenants yet.</div>`;
       $('ovl').classList.add('on');return;
@@ -718,9 +734,12 @@ function openModal(type, editId=null){
       const rm=S.data.rooms.find(r=>r.id===t.roomId);
       const pr=rm?S.data.properties.find(p=>p.id===rm.propertyId):null;
       const bal=tenantBalance(t.id);
-      return `<option value="${t.id}">${t.name} — ${pr?.name||''} / ${rm?.name||''} (${bal>0?'₹'+bal.toLocaleString('en-IN')+' pending':'Paid up'})`;
+      return `<option value="${t.id}">${t.name} — ${pr?.name||''} / ${rm?.name||''} (${bal>0?money(bal)+' pending':'Paid up'})`;
     }).join('');
     $('mb').innerHTML=`
+      <div style="font-size:12px;color:var(--tx3);text-align:center;margin-bottom:14px">
+        Collecting rent for <strong style="color:var(--am)">${billLabelFull()}</strong>
+      </div>
       <div class="fg"><label class="fl">Select Tenant</label>
         <select class="fs" id="f-ctenant" onchange="updateCollectBal(this.value)">${tenantOptions}</select>
       </div>
@@ -737,7 +756,6 @@ function openModal(type, editId=null){
       <div class="fg"><label class="fl">Date</label><input class="fi" id="fdt" type="date" value="${td()}"></div>
       <div class="fg"><input class="fi" id="frm" placeholder="Remarks (optional)"></div>
       <button class="fsb" onclick="save()">Save Payment</button>`;
-    // Trigger balance display for first tenant
     setTimeout(()=>updateCollectBal($('f-ctenant')?.value),50);
   } else if(type==='property'){
     $('mtl').textContent = ep ? 'Edit Property' : 'Add Property';
@@ -777,11 +795,12 @@ function openModal(type, editId=null){
       <button class="fsb" onclick="save()">Save Tenant</button>`;
   }else if(type==='payment'){
     const room=S.data.rooms.find(r=>r.id===S.roomId);
-    const pd=S.data.payments.filter(p=>p.roomId===S.roomId&&p.monthKey===k).reduce((s,p)=>s+p.amount,0);
+    const bk=billMk();
+    const pd=S.data.payments.filter(p=>p.roomId===S.roomId&&p.monthKey===bk).reduce((s,p)=>s+p.amount,0);
     const bal=Math.max(0,(room?.rent||0)-pd);
     $('mtl').textContent='Record Payment';
     $('mb').innerHTML=`
-      <div class="bb"><div class="bb-l">Balance Due — ${SMONTHS[S.month]} ${S.year}</div>
+      <div class="bb"><div class="bb-l">Rent for ${billLabelFull()}</div>
       <div class="bb-v">${money(bal)}</div></div>
       <div class="fg"><input class="fi" id="fam" type="number" placeholder="Amount Received (₹) *" value="${bal||''}" inputmode="numeric"></div>
       <div class="fg"><label class="fl">Payment Method</label>
@@ -827,7 +846,7 @@ function save(){
     S.data.payments.push({id:gid(),roomId:ten?.roomId||'',tenantId,
       amount,method:mState.method,
       date:$('fdt')?.value||td(),
-      monthKey:mk(),
+      monthKey:billMk(),
       remarks:$('frm')?.value.trim()||''});
   } else if(t==='property'){
     const name=$('fn')?.value.trim();
@@ -878,7 +897,7 @@ function save(){
     S.data.payments.push({id:gid(),roomId:S.roomId,tenantId:ten?.id||'',
       amount,method:mState.method,
       date:$('fdt')?.value||td(),
-      monthKey:mk(),
+      monthKey:billMk(),
       remarks:$('frm')?.value.trim()||''});
   }
   closeModal();renderView();sched();toast('Saved ✓');
