@@ -8,7 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="RentTracker"/>
-<meta name="theme-color" content="#020617"/>
+<meta name="theme-color" id="theme-color-meta" content="#020617"/>
+<meta name="description" content="Track rent payments across multiple properties. Syncs via Google Drive."/>
+<link rel="manifest" href="manifest.json"/>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://accounts.google.com/gsi/client" async></script>
 <style>
@@ -344,6 +346,9 @@ function applyTheme(t, persist=false){
   const b1=$('thm-btn'); const b2=$('thm-btn-login');
   if(b1)b1.textContent=icon;
   if(b2)b2.textContent=icon;
+  // Update status bar colour
+  const mc=document.getElementById('theme-color-meta');
+  if(mc)mc.setAttribute('content', t==='dark'?'#020617':'#f8fafc');
   localStorage.setItem('rt_theme', t);
   // Save to Drive data so it syncs across devices
   if(persist && S.data){
@@ -997,8 +1002,69 @@ function delPay(pid){
   renderView();sched();toast('Payment removed');
 }
 
+/* ── SERVICE WORKER + PWA INSTALL ──────────────────── */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW registration failed:', err));
+  });
+}
+
 let deferredInstall;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e});
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstall = e;
+  // Show install banner after user is in the app
+  setTimeout(() => showInstallBanner(), 3000);
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstall = null;
+  hideInstallBanner();
+  toast('App installed successfully ✓');
+});
+
+function showInstallBanner(){
+  if(!deferredInstall) return;
+  if(localStorage.getItem('rt_install_dismissed')) return;
+  let b = document.getElementById('install-banner');
+  if(!b){
+    b = document.createElement('div');
+    b.id = 'install-banner';
+    b.style.cssText = `position:fixed;bottom:80px;left:12px;right:12px;max-width:424px;
+      margin:0 auto;background:var(--ind);color:#fff;border-radius:16px;padding:14px 16px;
+      display:flex;align-items:center;gap:12px;z-index:200;
+      box-shadow:0 8px 32px rgba(79,70,229,.5);font-family:'Sora',sans-serif;`;
+    b.innerHTML = `
+      <span style="font-size:24px">📲</span>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">Install RentTracker</div>
+        <div style="font-size:12px;opacity:.85;margin-top:2px">Add to home screen for the best experience</div>
+      </div>
+      <button onclick="triggerInstall()" style="background:#fff;color:var(--ind);border:none;
+        font-family:'Sora',sans-serif;font-weight:700;font-size:13px;padding:8px 14px;
+        border-radius:10px;cursor:pointer;white-space:nowrap">Install</button>
+      <button onclick="hideInstallBanner(true)" style="background:none;border:none;color:#fff;
+        font-size:20px;cursor:pointer;padding:4px;opacity:.7;line-height:1">✕</button>`;
+    document.body.appendChild(b);
+  }
+  b.style.display = 'flex';
+}
+
+function hideInstallBanner(dismiss=false){
+  const b = document.getElementById('install-banner');
+  if(b) b.style.display = 'none';
+  if(dismiss) localStorage.setItem('rt_install_dismissed','1');
+}
+
+async function triggerInstall(){
+  if(!deferredInstall) return;
+  deferredInstall.prompt();
+  const { outcome } = await deferredInstall.userChoice;
+  if(outcome === 'accepted') deferredInstall = null;
+  hideInstallBanner();
+}
 </script>
 </body>
 </html>
