@@ -282,7 +282,7 @@ let syncTimer=null, mState={};
 const $  = id => document.getElementById(id);
 const gid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const td  = () => new Date().toISOString().slice(0,10);
-const money   = n  => '₹'+(n||0).toLocaleString('en-IN');
+const money = n => '₹'+(n||0).toLocaleString('en-IN');
 const mk  = () => `${S.year}-${S.month}`;
 
 function toast(msg,ms=2400){const t=$('tst');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),ms)}
