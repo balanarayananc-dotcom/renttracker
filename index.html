@@ -1,21 +1,736 @@
-<p dir="ltr">RentTracker *,*::before,*::after{box-sizing:border-box;margin:0;padding:0} :root{ --bg:#020617;--bg2:#0f172a;--bg3:#1e293b; --bdr:#1e293b;--bdr2:#334155; --ind:#6366f1;--ind-d:#4f46e5;--ind-bg:rgba(99,102,241,.14); --em:#34d399;--em-bg:rgba(52,211,153,.1); --am:#fbbf24;--am-bg:rgba(251,191,36,.1); --red:#f87171;--red-bg:rgba(248,113,113,.08); --tx:#f1f5f9;--tx2:#94a3b8;--tx3:#475569; --r:18px; } html,body{height:100%;background:var(--bg);font-family:'Sora',sans-serif;color:var(--tx);overflow:hidden;-webkit-tap-highlight-color:transparent} #app{height:100dvh;max-width:448px;margin:0 auto;display:flex;flex-direction:column;position:relative;overflow:hidden} .screen{display:none;flex-direction:column;height:100%} .screen.on{display:flex} /* LOGIN */ #ls{align-items:center;justify-content:center;gap:22px;padding:40px 28px;background:var(--bg)} .logo{font-size:64px;line-height:1} .appname{font-size:30px;font-weight:800;letter-spacing:-.5px} .apptag{font-size:13px;color:var(--tx3);text-align:center;line-height:1.7} .gbtn{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--bdr2);color:var(--tx);font-family:'Sora',sans-serif;font-size:14px;font-weight:500;padding:14px 24px;border-radius:14px;cursor:pointer;width:100%;justify-content:center;transition:border-color .2s,background .2s} .gbtn:hover{border-color:var(--ind);background:var(--bg3)} .wbox{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:12px;padding:14px 16px;font-size:12px;color:var(--am);line-height:1.8;display:none;width:100%;text-align:left} .wbox.on{display:block} .wbox code{background:rgba(251,191,36,.15);padding:1px 5px;border-radius:4px;font-family:monospace;font-size:11px} /* HEADER */ #hdr{background:var(--bg);border-bottom:1px solid var(--bdr);padding:11px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:20} .hbk{width:34px;height:34px;border-radius:50%;background:var(--bg3);border:none;color:var(--tx2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s} .hbk:hover{background:var(--bdr2)} .htl{flex:1;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .hrgt{display:flex;align-items:center;gap:8px} .syni{font-size:11px;color:var(--ind);animation:pulse 1s infinite;display:none} .av{width:30px;height:30px;border-radius:50%;background:var(--ind-bg);border:1px solid var(--ind);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ind);cursor:pointer;overflow:hidden;flex-shrink:0} .av img{width:100%;height:100%;object-fit:cover} /* CONTENT */ #cnt{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px;padding-bottom:90px;-webkit-overflow-scrolling:touch} #cnt::-webkit-scrollbar{display:none} /* BOTTOM NAV */ #bn{position:absolute;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--bdr);display:flex;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px)} .nbt{flex:1;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:500;background:none;border:none;cursor:pointer;color:var(--tx3);transition:color .2s;font-family:'Sora',sans-serif} .nbt.on{color:var(--ind)} .nic{font-size:22px;line-height:1} /* VIEWS */ .vw{display:none}.vw.on{display:block;animation:fi .18s ease} @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}} /* CARD */ .cd{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-bottom:12px} .cd.lk{cursor:pointer;transition:border-color .2s} .cd.lk:active{border-color:var(--ind)} /* MONTH SEL */ .ms{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px} .mb{width:36px;height:36px;border-radius:50%;background:var(--bg3);border:none;color:var(--tx2);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s} .mb:hover{background:var(--bdr2)} /* KPI */ .kr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px} .kp{border-radius:16px;padding:12px 8px;text-align:center;border:1px solid var(--bdr)} .kv{font-weight:700;font-size:16px;line-height:1.2} .kl{font-size:10px;color:var(--tx3);margin-top:3px} .kp.i{background:var(--ind-bg)}.kp.i .kv{color:#a5b4fc} .kp.e{background:var(--em-bg)}.kp.e .kv{color:var(--em)} .kp.a{background:var(--am-bg)}.kp.a .kv{color:var(--am)} /* PROGRESS */ .pwrap{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-bottom:16px} .ptrk{height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;margin:8px 0 6px} .pfil{height:100%;background:linear-gradient(90deg,var(--ind),var(--em));border-radius:99px;transition:width .7s} .pmt{display:flex;justify-content:space-between;font-size:11px;color:var(--tx3)} /* SLBL */ .sl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--tx3);margin-bottom:10px;margin-top:4px} /* TAG */ .tg{font-size:10px;padding:2px 8px;border-radius:99px;background:var(--ind-bg);color:#a5b4fc;display:inline-block} /* ROOM HEADER */ .rh{background:linear-gradient(135deg,#1e1b4b,#0f172a);border:1px solid rgba(99,102,241,.4);border-radius:var(--r);padding:20px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-start} .rh-l .rt{font-size:11px;color:#a5b4fc;text-transform:uppercase;letter-spacing:.08em} .rh-l .rn{font-weight:800;font-size:22px;color:#fff;margin-top:4px} .rh-r .rl{font-size:11px;color:#a5b4fc} .rh-r .rr{font-weight:800;font-size:22px;color:#fff;margin-top:4px} /* STAT3 */ .s3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px} .sc{background:var(--bg3);border-radius:12px;padding:10px;text-align:center} .sv{font-weight:700;font-size:15px} .sk{font-size:10px;color:var(--tx3);margin-top:2px} /* PAY ROW */ .pr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bdr)} .pr:last-child{border-bottom:none} .pd{font-size:13px;color:var(--tx2)} .pm{font-size:11px;color:var(--tx3);margin-top:1px} .prr{display:flex;align-items:center;gap:8px} .pa{font-weight:600;font-size:14px;color:var(--em)} .db{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:4px 6px;transition:color .2s;line-height:1} .db:hover{color:var(--red)} /* BTNS */ .cbtn{background:var(--em-bg);color:var(--em);border:1px solid rgba(52,211,153,.3);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:99px;cursor:pointer;transition:background .2s} .cbtn:hover{background:rgba(52,211,153,.18)} .sbtn{background:none;border:1px solid var(--bdr2);color:#a5b4fc;font-family:'Sora',sans-serif;font-size:12px;padding:6px 14px;border-radius:99px;cursor:pointer;transition:background .2s} .sbtn:hover{background:var(--ind-bg)} .dbtn{width:100%;background:none;border:1px solid rgba(248,113,113,.3);color:var(--red);font-family:'Sora',sans-serif;font-size:14px;padding:12px;border-radius:14px;cursor:pointer;transition:background .2s;margin-top:8px} .dbtn:hover{background:var(--red-bg)} /* FAB */ #fab{position:fixed;bottom:76px;right:calc(50% - 208px);width:52px;height:52px;border-radius:50%;background:var(--ind);border:none;color:#fff;font-size:28px;cursor:pointer;z-index:30;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(99,102,241,.5);transition:background .2s,transform .15s;font-family:'Sora',sans-serif} #fab:active{transform:scale(.9)} #fab.hide{display:none} /* EMPTY */ .emp{text-align:center;padding:60px 20px} .ei{font-size:56px;margin-bottom:14px} .et{font-size:14px;color:var(--tx2);margin-bottom:6px} .es{font-size:12px;color:var(--tx3)} /* MODAL */ #ovl{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:50;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s} #ovl.on{opacity:1;pointer-events:all} .sht{background:#080e1d;border-top:1px solid var(--bdr2);border-radius:24px 24px 0 0;width:100%;max-width:448px;margin:0 auto;padding:24px 20px 36px;max-height:88dvh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)} #ovl.on .sht{transform:translateY(0)} .mhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px} .mtl{font-weight:700;font-size:18px} .mcl{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:none;color:var(--tx2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center} /* FORM */ .fg{margin-bottom:14px} .fl{font-size:11px;color:var(--tx3);margin-bottom:6px;display:block} .fi{width:100%;background:var(--bg3);border:1px solid var(--bdr2);border-radius:12px;padding:13px 16px;font-size:14px;color:var(--tx);font-family:'Sora',sans-serif;transition:border-color .2s;outline:none} .fi:focus{border-color:var(--ind)} .fs{width:100%;background:var(--bg3);border:1px solid var(--bdr2);border-radius:12px;padding:13px 16px;font-size:14px;color:var(--tx);font-family:'Sora',sans-serif;appearance:none;outline:none;cursor:pointer} .fsb{width:100%;background:var(--ind);border:none;color:#fff;font-family:'Sora',sans-serif;font-size:15px;font-weight:600;padding:16px;border-radius:14px;cursor:pointer;margin-top:8px;transition:background .2s} .fsb:hover{background:var(--ind-d)} .tr{display:flex;gap:8px} .to{flex:1;padding:10px;border-radius:10px;text-align:center;background:var(--bg3);border:1px solid var(--bdr2);font-size:12px;color:var(--tx2);cursor:pointer;transition:all .2s} .to.on{background:var(--ind-bg);border-color:var(--ind);color:#a5b4fc} .mr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px} .mo{padding:10px 6px;border-radius:10px;text-align:center;background:var(--bg3);border:1px solid var(--bdr2);font-size:12px;color:var(--tx2);cursor:pointer;transition:all .2s} .mo.on{background:var(--em-bg);border-color:rgba(52,211,153,.5);color:var(--em)} .bb{background:var(--ind-bg);border:1px solid rgba(99,102,241,.3);border-radius:14px;padding:14px;text-align:center;margin-bottom:16px} .bb-l{font-size:12px;color:#a5b4fc} .bb-v{font-size:26px;font-weight:800;color:#fff;margin-top:4px} /* TOAST */ #tst{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--bdr2);color:var(--tx);font-size:13px;padding:10px 20px;border-radius:99px;z-index:100;opacity:0;transition:opacity .3s;white-space:nowrap;max-width:calc(100% - 40px);pointer-events:none} #tst.on{opacity:1} /* RECENTS */ .rr{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bdr)} .rr:last-child{border-bottom:none} </p>
-<p dir="ltr">&#127960;&#65039;</p>
-<p dir="ltr">RentTracker</p>
-<p dir="ltr">Manage your rental properties.<br>
-Data syncs across all family devices via Google Drive.</p>
-<p dir="ltr">&#9888;&#65039; <b>One-time setup needed:</b></p>
-<p dir="ltr">1. Open this index.html in a text editor<br>
-2. Find the line: YOUR_<span style="background-color:#FFFF00;">CLIENT</span>_ID_HERE<br>
-3. Replace it with your Google OAuth 2.0 <span style="background-color:#FFFF00;">Client</span> ID<br>
-4. Follow the full steps in SETUP_GUIDE.txt </p>
-<p dir="ltr">Sign in with Google </p>
-<p dir="ltr">&#8592; </p>
-<p dir="ltr">RentTracker</p>
-<p dir="ltr">&#10227; Syncing </p>
-<p dir="ltr">B</p>
-<p dir="ltr">&#8249; &#8250; </p>
-<p dir="ltr">&#128202;Dashboard &#127960;&#65039;Places </p>
-<p dir="ltr">+ </p>
-<p dir="ltr">Add</p>
-<p dir="ltr">&#10005;</p>
-<p dir="ltr">// &#9556;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9559; // &#9553; FILL IN YOUR GOOGLE <span style="background-color:#FFFF00;">CLIENT</span> ID BELOW &#9553; // &#9553; (see SETUP_GUIDE.txt for step-by-step instructions) &#9553; // &#9562;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9565; const <span style="background-color:#FFFF00;">CLIENT</span>_ID = '602370313501-5n59eppkrsjhp7at0og9uj4ugr1nc2pk.apps.googleusercontent.com'; const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']; const SMONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; const FNAME = 'renttracker-data.json'; const SCOPES = 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.profile'; const EMPTY = {properties:[],rooms:[],tenants:[],payments:[]}; let S = { data: JSON.parse(JSON.stringify(EMPTY)), view:'d', propId:null, roomId:null, month: new Date().getMonth(), year: new Date().getFullYear(), }; let token<span style="background-color:#FFFF00;">Client</span>, token=null, fileId=localStorage.getItem('rt_fid')||null; let syncTimer=null, mState={}; const $ = id =&gt; document.getElementById(id); const gid = () =&gt; Date.now().toString(36)+Math.random().toString(36).slice(2,6); const td = () =&gt; new Date().toISOString().slice(0,10); const &#8377; = n =&gt; '&#8377;'+(n||0).toLocaleString('en-IN'); const mk = () =&gt; `${S.year}-${S.month}`; function toast(msg,ms=2400){const t=$('tst');t.textContent=msg;t.classList.add('on');setTimeout(()=&gt;t.classList.remove('on'),ms)} function sync(on){$('syn').style.display=on?'inline':'none'} /* &#9472;&#9472; AUTH &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472; */ function signIn(){ if(<span style="background-color:#FFFF00;">CLIENT</span>_ID.includes('602370313501-5n59eppkrsjhp7at0og9uj4ugr1nc2pk.apps.googleusercontent.com')){$('wb').classList.add('on');return} if(!token<span style="background-color:#FFFF00;">Client</span>){ token<span style="background-color:#FFFF00;">Client</span>=google.accounts.oauth2.initToken<span style="background-color:#FFFF00;">Client</span>({ <span style="background-color:#FFFF00;">client</span>_id:<span style="background-color:#FFFF00;">CLIENT</span>_ID, scope:SCOPES, callback:async r=&gt;{ if(r.error){toast('Sign-in failed');return} token=r.access_token; localStorage.setItem('rt_tok',token); await getProfile(); await loadDrive(); enterApp(); } }); } token<span style="background-color:#FFFF00;">Client</span>.requestAccessToken({prompt:''}); } async function getProfile(){ try{ const r=await gf('https://www.googleapis.com/oauth2/v3/userinfo'); const u=await r.json(); const av=$('av'); if(u.picture)av.innerHTML=`&lt;img src="${u.picture}" alt=""&gt;`; else av.textContent=(u.name||'U')[0].toUpperCase(); }catch(e){} } function confirmSignOut(){ if(!confirm('Sign out?'))return; try{google.accounts.oauth2.revoke(token,()=&gt;{})}catch(e){} token=null;localStorage.removeItem('rt_tok'); $('ls').classList.add('on');$('as').classList.remove('on');$('fab').classList.add('hide'); } function enterApp(){ $('ls').classList.remove('on');$('as').classList.add('on');$('fab').classList.remove('hide');render(); } window.addEventListener('load',async()=&gt;{ if(<span style="background-color:#FFFF00;">CLIENT</span>_ID.includes('YOUR_<span style="background-color:#FFFF00;">CLIENT</span>_ID'))$('wb').classList.add('on'); const saved=localStorage.getItem('rt_tok');if(!saved)return; try{ const info=await(await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${saved}`)).json(); if(info.error){localStorage.removeItem('rt_tok');return} token=saved;await getProfile();await loadDrive();enterApp(); }catch(e){} }); /* &#9472;&#9472; DRIVE &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472; */ async function gf(url,opts={}){ const r=await fetch(url,{...opts,headers:{Authorization:`Bearer ${token}`, ...(opts.headers||{})}}); if(r.status===401){token<span style="background-color:#FFFF00;">Client</span>?.requestAccessToken({prompt:''});throw new Error('auth')} return r; } async function ensureFile(){ if(fileId)return fileId; const r=await gf(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&amp;q=name='${FNAME}'&amp;fields=files(id)`); const j=await r.json(); if(j.files?.length){fileId=j.files[0].id;localStorage.setItem('rt_fid',fileId);return fileId} const meta=JSON.stringify({name:FNAME,parents:['appDataFolder']}); const form=new FormData(); form.append('metadata',new Blob([meta],{type:'application/json'})); form.append('file',new Blob([JSON.stringify(EMPTY)],{type:'application/json'})); const cr=await gf('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&amp;fields=id',{method:'POST',body:form}); const c=await cr.json();fileId=c.id;localStorage.setItem('rt_fid',fileId);return fileId; } async function loadDrive(){ sync(true); try{ const fid=await ensureFile(); const r=await gf(`https://www.googleapis.com/drive/v3/files/${fid}?alt=media`); if(r.ok)S.data=await r.json(); }catch(e){if(e.message!=='auth')toast('Could not load data')} sync(false); } async function saveDrive(){ if(!token)return;sync(true); try{ const fid=await ensureFile(); await gf(`https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=media`,{ method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(S.data) }); }catch(e){if(e.message!=='auth')toast('Sync failed')} sync(false); } document.addEventListener('visibilitychange',()=&gt;{ if(!document.hidden&amp;&amp;token)loadDrive().then(()=&gt;render()); }); function sched(){clearTimeout(syncTimer);syncTimer=setTimeout(saveDrive,1000)} /* &#9472;&#9472; NAV &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472; */ function tab(v){S.view=v;S.propId=null;S.roomId=null;upNav();renderView()} function goProp(id){S.propId=id;S.view='pr';upNav();renderView()} function goRoom(id){S.roomId=id;S.view='r';upNav();renderView()} function goBack(){ if(S.view==='r'){S.view='pr';S.roomId=null} else{S.view='p';S.propId=null} upNav();renderView(); } function upNav(){ ['d','p'].forEach(v=&gt;$('nb-'+v).classList.toggle('on',S.view===v)); const deep=S.view==='pr'||S.view==='r'; $('bkbtn').style.display=deep?'flex':'none'; $('bn').style.display=deep?'none':'flex'; const titles={ d:'RentTracker',p:'My Properties', pr:S.data.properties.find(x=&gt;x.id===S.propId)?.name||'', r:S.data.rooms.find(x=&gt;x.id===S.roomId)?.name||'', }; $('htl').textContent=titles[S.view]||'RentTracker'; if(S.view==='r'){$('fab').textContent='&#8377;';$('fab').style.background='#059669';$('fab').style.boxShadow='0 4px 20px rgba(5,150,105,.5)'} else{$('fab').textContent='+';$('fab').style.background='var(--ind)';$('fab').style.boxShadow='0 4px 20px rgba(99,102,241,.5)'} } function fabClick(){ if(S.view==='d'||S.view==='p')openModal('property'); else if(S.view==='pr')openModal('room'); else if(S.view==='r')openModal('payment'); } function cm(d){ S.month+=d; if(S.month&lt;0){S.month=11;S.year--} if(S.month&gt;11){S.month=0;S.year++} renderView(); } /* &#9472;&#9472; RENDER &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472; */ function render(){upNav();renderView()} function renderView(){ ['d','p','pr','r'].forEach(v=&gt;$('v-'+v).classList.toggle('on',S.view===v)); if(S.view==='d')rDash(); else if(S.view==='p')rPlaces(); else if(S.view==='pr')rProp(); else if(S.view==='r')rRoom(); } /* DASHBOARD */ function rDash(){ const k=mk(); $('ml').textContent=`${MONTHS[S.month]} ${S.year}`; const active=S.data.tenants.filter(t=&gt;t.active); const due=active.reduce((s,t)=&gt;{const r=S.data.rooms.find(r=&gt;r.id===t.roomId);return s+(r?.rent||0)},0); const coll=S.data.payments.filter(p=&gt;p.monthKey===k).reduce((s,p)=&gt;s+p.amount,0); const pend=Math.max(0,due-coll); $('kr').innerHTML=` &lt;div class="kp i"&gt;&lt;div class="kv"&gt;${active.length}&lt;/div&gt;&lt;div class="kl"&gt;Tenants&lt;/div&gt;&lt;/div&gt; &lt;div class="kp e"&gt;&lt;div class="kv"&gt;${&#8377;(coll)}&lt;/div&gt;&lt;div class="kl"&gt;Collected&lt;/div&gt;&lt;/div&gt; &lt;div class="kp a"&gt;&lt;div class="kv"&gt;${&#8377;(pend)}&lt;/div&gt;&lt;div class="kl"&gt;Pending&lt;/div&gt;&lt;/div&gt;`; $('ps').innerHTML=due&gt;0?`&lt;div class="pwrap"&gt; &lt;div style="display:flex;justify-content:space-between;font-size:13px"&gt; &lt;span style="color:var(--tx2)"&gt;Collection Progress&lt;/span&gt; &lt;span style="font-weight:600"&gt;${Math.round(coll/due*100)}%&lt;/span&gt; &lt;/div&gt; &lt;div class="ptrk"&gt;&lt;div class="pfil" style="width:${Math.min(100,coll/due*100)}%"&gt;&lt;/div&gt;&lt;/div&gt; &lt;div class="pmt"&gt;&lt;span&gt;${&#8377;(coll)} collected&lt;/span&gt;&lt;span&gt;${&#8377;(due)} total due&lt;/span&gt;&lt;/div&gt; &lt;/div&gt;` : ''; if(S.data.properties.length){ $('dp').innerHTML='&lt;div class="sl"&gt;Properties&lt;/div&gt;'+S.data.properties.map(p=&gt;{ const pr=S.data.rooms.filter(r=&gt;r.propertyId===p.id); const occ=pr.filter(r=&gt;S.data.tenants.some(t=&gt;t.roomId===r.id&amp;&amp;t.active)).length; const pc=S.data.payments.filter(x=&gt;x.monthKey===k&amp;&amp;pr.some(r=&gt;r.id===x.roomId)).reduce((s,x)=&gt;s+x.amount,0); const pd=pr.reduce((s,r)=&gt;S.data.tenants.some(t=&gt;t.roomId===r.id&amp;&amp;t.active)?s+r.rent:s,0); return `&lt;div class="cd lk" onclick="goProp('${p.id}')"&gt; &lt;div style="display:flex;justify-content:space-between;align-items:center"&gt; &lt;div&gt;&lt;div style="font-weight:700;font-size:15px"&gt;${p.name}&lt;/div&gt; &lt;div style="font-size:11px;color:var(--tx3);margin-top:3px"&gt;${pr.length} rooms &#183; ${occ} occupied&lt;/div&gt;&lt;/div&gt; &lt;div style="text-align:right"&gt;&lt;div style="font-weight:700;color:var(--em)"&gt;${&#8377;(pc)}&lt;/div&gt; &lt;div style="font-size:11px;color:var(--tx3)"&gt;of ${&#8377;(pd)}&lt;/div&gt;&lt;/div&gt; &lt;/div&gt;&lt;/div&gt;`; }).join(''); }else $('dp').innerHTML=''; const rec=S.data.payments.filter(p=&gt;p.monthKey===k).slice(-5).reverse(); if(rec.length){ $('dr').innerHTML='&lt;div class="sl" style="margin-top:6px"&gt;Recent Payments&lt;/div&gt;&lt;div class="cd" style="padding:4px 16px"&gt;'+rec.map(pay=&gt;{ const rm=S.data.rooms.find(r=&gt;r.id===pay.roomId); const tn=S.data.tenants.find(t=&gt;t.id===pay.tenantId); const pr=rm?S.data.properties.find(p=&gt;p.id===rm.propertyId):null; return `&lt;div class="rr"&gt; &lt;div&gt;&lt;div style="font-size:14px;font-weight:500"&gt;${tn?.name||'&#8212;'}&lt;/div&gt; &lt;div style="font-size:11px;color:var(--tx3);margin-top:1px"&gt;${pr?.name||''} &#183; ${rm?.name||''}&lt;/div&gt;&lt;/div&gt; &lt;div style="text-align:right"&gt;&lt;div style="font-weight:600;color:var(--em)"&gt;${&#8377;(pay.amount)}&lt;/div&gt; &lt;div style="font-size:11px;color:var(--tx3)"&gt;${pay.date}&lt;/div&gt;&lt;/div&gt; &lt;/div&gt;`; }).join('')+'&lt;/div&gt;'; }else $('dr').innerHTML=''; $('de').innerHTML=!S.data.properties.length?`&lt;div class="emp"&gt;&lt;div class="ei"&gt;&#127960;&#65039;&lt;/div&gt; &lt;div class="et"&gt;No properties yet&lt;/div&gt;&lt;div class="es"&gt;Tap + to add your first property&lt;/div&gt;&lt;/div&gt;`:''; } /* PLACES */ function rPlaces(){ if(!S.data.properties.length){ $('pl').innerHTML=`&lt;div class="emp"&gt;&lt;div class="ei"&gt;&#127968;&lt;/div&gt;&lt;div class="et"&gt;No properties added&lt;/div&gt;&lt;div class="es"&gt;Tap + to add your first property&lt;/div&gt;&lt;/div&gt;`;return; } $('pl').innerHTML=S.data.properties.map(p=&gt;{ const pr=S.data.rooms.filter(r=&gt;r.propertyId===p.id); const occ=pr.filter(r=&gt;S.data.tenants.some(t=&gt;t.roomId===r.id&amp;&amp;t.active)).length; return `&lt;div class="cd lk" onclick="goProp('${p.id}')"&gt; &lt;div style="display:flex;justify-content:space-between;align-items:flex-start"&gt; &lt;div style="flex:1;min-width:0"&gt; &lt;div style="font-weight:700;font-size:16px"&gt;${p.name}&lt;/div&gt; ${p.address?`&lt;div style="font-size:12px;color:var(--tx3);margin-top:3px"&gt;&#128205; ${p.address}&lt;/div&gt;`:''} &lt;div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center"&gt; &lt;span class="tg"&gt;${p.type}&lt;/span&gt; &lt;span style="font-size:11px;color:var(--tx3)"&gt;${pr.length} rooms &#183; ${occ} occupied&lt;/span&gt; &lt;/div&gt; &lt;/div&gt; &lt;button onclick="event.stopPropagation();delProp('${p.id}')" style="background:none;border:none;color:var(--tx3);font-size:22px;cursor:pointer;padding:4px;flex-shrink:0;line-height:1;transition:color .2s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--tx3)'"&gt;&#215;&lt;/button&gt; &lt;/div&gt;&lt;/div&gt;`; }).join(''); } /* PROPERTY */ function rProp(){ const k=mk(); const rooms=S.data.rooms.filter(r=&gt;r.propertyId===S.propId); if(!rooms.length){$('prr').innerHTML=`&lt;div class="emp"&gt;&lt;div class="ei"&gt;&#128682;&lt;/div&gt;&lt;div class="et"&gt;No rooms added&lt;/div&gt;&lt;div class="es"&gt;Tap + to add a room&lt;/div&gt;&lt;/div&gt;`;return} $('prr').innerHTML=rooms.map(r=&gt;{ const t=S.data.tenants.find(tn=&gt;tn.roomId===r.id&amp;&amp;tn.active); const pd=S.data.payments.filter(p=&gt;p.roomId===r.id&amp;&amp;p.monthKey===k).reduce((s,p)=&gt;s+p.amount,0); const bal=(r.rent||0)-pd; return `&lt;div class="cd lk" onclick="goRoom('${r.id}')"&gt; &lt;div style="display:flex;justify-content:space-between;align-items:flex-start"&gt; &lt;div&gt; &lt;div style="font-weight:700;font-size:15px"&gt;${r.name}&lt;/div&gt; &lt;div style="font-size:12px;color:var(--tx3);margin-top:3px"&gt;${r.type} &#183; ${&#8377;(r.rent)}/mo&lt;/div&gt; ${t?`&lt;div style="display:flex;align-items:center;gap:5px;margin-top:8px;font-size:13px;color:#a5b4fc"&gt; &lt;span style="width:6px;height:6px;border-radius:50%;background:var(--em);flex-shrink:0;display:inline-block"&gt;&lt;/span&gt;${t.name}&lt;/div&gt;` :`&lt;div style="display:flex;align-items:center;gap:5px;margin-top:8px;font-size:12px;color:var(--tx3)"&gt; &lt;span style="width:6px;height:6px;border-radius:50%;background:var(--tx3);flex-shrink:0;display:inline-block"&gt;&lt;/span&gt;Vacant&lt;/div&gt;`} &lt;/div&gt; ${t?`&lt;div style="text-align:right"&gt; &lt;div style="font-weight:700;font-size:15px;color:${bal&lt;=0?'var(--em)':'var(--am)'}"&gt;${bal&lt;=0?'&#10003; Paid':&#8377;(bal)+' due'}&lt;/div&gt; ${pd&gt;0?`&lt;div style="font-size:11px;color:var(--tx3);margin-top:2px"&gt;${&#8377;(pd)} paid&lt;/div&gt;`:''} &lt;/div&gt;`:''} &lt;/div&gt;&lt;/div&gt;`; }).join(''); } /* ROOM DETAIL */ function rRoom(){ const room=S.data.rooms.find(r=&gt;r.id===S.roomId);if(!room)return; const tenant=S.data.tenants.find(t=&gt;t.roomId===S.roomId&amp;&amp;t.active); const k=mk(); const paid=S.data.payments.filter(p=&gt;p.roomId===S.roomId&amp;&amp;p.monthKey===k).reduce((s,p)=&gt;s+p.amount,0); const bal=Math.max(0,(room.rent||0)-paid); const mPays=S.data.payments.filter(p=&gt;p.roomId===S.roomId&amp;&amp;p.monthKey===k); const allP=S.data.payments.filter(p=&gt;p.roomId===S.roomId).slice().reverse(); let h=`&lt;div class="rh"&gt; &lt;div class="rh-l"&gt;&lt;div class="rt"&gt;${room.type}&lt;/div&gt;&lt;div class="rn"&gt;${room.name}&lt;/div&gt;&lt;/div&gt; &lt;div class="rh-r"&gt;&lt;div class="rl"&gt;Monthly Rent&lt;/div&gt;&lt;div class="rr"&gt;${&#8377;(room.rent)}&lt;/div&gt;&lt;/div&gt; &lt;/div&gt;`; h+=tenant?`&lt;div class="cd" style="margin-bottom:12px"&gt; &lt;div style="display:flex;justify-content:space-between;align-items:flex-start"&gt; &lt;div&gt; &lt;div class="sl" style="margin-bottom:4px"&gt;Tenant&lt;/div&gt; &lt;div style="font-weight:700;font-size:16px"&gt;${tenant.name}&lt;/div&gt; ${tenant.phone?`&lt;div style="font-size:13px;color:var(--tx2);margin-top:3px"&gt;&#128222; ${tenant.phone}&lt;/div&gt;`:''} &lt;div style="display:flex;gap:16px;margin-top:6px;flex-wrap:wrap"&gt; &lt;div style="font-size:12px;color:var(--tx3)"&gt;In: ${tenant.moveIn}&lt;/div&gt; ${tenant.deposit&gt;0?`&lt;div style="font-size:12px;color:#a5b4fc"&gt;Deposit: ${&#8377;(tenant.deposit)}&lt;/div&gt;`:''} &lt;/div&gt; ${tenant.leaseType==='fixed'&amp;&amp;tenant.leaseEnd?`&lt;div style="font-size:12px;color:var(--am);margin-top:4px"&gt;Lease until: ${tenant.leaseEnd}&lt;/div&gt;`:''} &lt;/div&gt; &lt;button class="sbtn" onclick="openModal('tenant')"&gt;Change&lt;/button&gt; &lt;/div&gt;&lt;/div&gt;` :`&lt;div class="cd" style="border-color:rgba(251,191,36,.3);text-align:center;padding:20px;margin-bottom:12px"&gt; &lt;div style="color:var(--am);margin-bottom:12px"&gt;No tenant assigned&lt;/div&gt; &lt;button class="sbtn" onclick="openModal('tenant')"&gt;Add Tenant&lt;/button&gt;&lt;/div&gt;`; if(tenant){ const prows=mPays.map(p=&gt;`&lt;div class="pr"&gt; &lt;div&gt;&lt;div class="pd"&gt;${p.date} &#183; ${p.method}&lt;/div&gt;${p.remarks?`&lt;div class="pm"&gt;${p.remarks}&lt;/div&gt;`:''}&lt;/div&gt; &lt;div class="prr"&gt;&lt;span class="pa"&gt;${&#8377;(p.amount)}&lt;/span&gt; &lt;button class="db" onclick="delPay('${p.id}')"&gt;&#215;&lt;/button&gt; &lt;/div&gt;&lt;/div&gt;`).join(''); h+=`&lt;div class="cd" style="margin-bottom:12px"&gt; &lt;div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"&gt; &lt;div class="sl" style="margin:0"&gt;Rent &#8212; ${SMONTHS[S.month]} ${S.year}&lt;/div&gt; &lt;button class="cbtn" onclick="openModal('payment')"&gt;+ Collect&lt;/button&gt; &lt;/div&gt; &lt;div class="s3"&gt; &lt;div class="sc"&gt;&lt;div class="sv"&gt;${&#8377;(room.rent)}&lt;/div&gt;&lt;div class="sk"&gt;Due&lt;/div&gt;&lt;/div&gt; &lt;div class="sc"&gt;&lt;div class="sv" style="color:var(--em)"&gt;${&#8377;(paid)}&lt;/div&gt;&lt;div class="sk"&gt;Paid&lt;/div&gt;&lt;/div&gt; &lt;div class="sc"&gt;&lt;div class="sv" style="color:${bal&gt;0?'var(--am)':'var(--em)'}"&gt;${&#8377;(bal)}&lt;/div&gt;&lt;div class="sk"&gt;Balance&lt;/div&gt;&lt;/div&gt; &lt;/div&gt; ${prows?`&lt;div style="margin-top:8px"&gt;${prows}&lt;/div&gt;`:''} &lt;/div&gt;`; } if(allP.length){ h+=`&lt;div class="sl" style="margin-top:4px"&gt;All History&lt;/div&gt; &lt;div class="cd" style="padding:4px 16px"&gt;${allP.map(p=&gt;`&lt;div class="pr"&gt; &lt;div&gt;&lt;div class="pd"&gt;${p.date} &#183; ${p.method}&lt;/div&gt;&lt;div class="pm"&gt;${p.monthKey}${p.remarks?' &#183; '+p.remarks:''}&lt;/div&gt;&lt;/div&gt; &lt;span class="pa"&gt;${&#8377;(p.amount)}&lt;/span&gt;&lt;/div&gt;`).join('')}&lt;/div&gt;`; } h+=`&lt;button class="dbtn" onclick="delRoom('${room.id}')"&gt;Delete Room&lt;/button&gt;`; $('rd').innerHTML=h; } /* &#9472;&#9472; MODAL &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472; */ function openModal(type){ mState={type,leaseType:'open',method:'Cash'}; const k=mk(); if(type==='property'){ $('mtl').textContent='Add Property'; $('mb').innerHTML=` &lt;div class="fg"&gt;&lt;input class="fi" id="fn" placeholder="Property Name *" autocomplete="off"&gt;&lt;/div&gt; &lt;div class="fg"&gt;&lt;input class="fi" id="fa" placeholder="Address (optional)" autocomplete="off"&gt;&lt;/div&gt; &lt;div class="fg"&gt;&lt;select class="fs" id="ft"&gt; &lt;option&gt;House&lt;/option&gt;&lt;option&gt;Apartment&lt;/option&gt;&lt;option&gt;Building&lt;/option&gt;&lt;option&gt;Shop&lt;/option&gt;&lt;option&gt;Plot&lt;/option&gt; &lt;/select&gt;&lt;/div&gt; &lt;button class="fsb" onclick="save()"&gt;Save Property&lt;/button&gt;`; }else if(type==='room'){ $('mtl').textContent='Add Room'; $('mb').innerHTML=` &lt;div class="fg"&gt;&lt;input class="fi" id="fn" placeholder="Room Name *" autocomplete="off"&gt;&lt;/div&gt; &lt;div class="fg"&gt;&lt;select class="fs" id="ft"&gt; &lt;option&gt;1BHK&lt;/option&gt;&lt;option&gt;2BHK&lt;/option&gt;&lt;option&gt;3BHK&lt;/option&gt;&lt;option&gt;Studio&lt;/option&gt;&lt;option&gt;Single Room&lt;/option&gt;&lt;option&gt;Shop&lt;/option&gt;&lt;option&gt;Office&lt;/option&gt; &lt;/select&gt;&lt;/div&gt; &lt;div class="fg"&gt;&lt;input class="fi" id="fr" type="number" placeholder="Monthly Rent (&#8377;) *" inputmode="numeric"&gt;&lt;/div&gt; &lt;button class="fsb" onclick="save()"&gt;Save Room&lt;/button&gt;`; }else if(type==='tenant'){ $('mtl').textContent='Add / Change Tenant'; $('mb').innerHTML=` &lt;div class="fg"&gt;&lt;input class="fi" id="fn" placeholder="Tenant Name *" autocomplete="off"&gt;&lt;/div&gt; &lt;div class="fg"&gt;&lt;input class="fi" id="fph" type="tel" placeholder="Phone Number" inputmode="tel"&gt;&lt;/div&gt; &lt;div class="fg"&gt;&lt;label class="fl"&gt;Move-In Date&lt;/label&gt;&lt;input class="fi" id="fmi" type="date" value="${td()}"&gt;&lt;/div&gt; &lt;div class="fg"&gt;&lt;input class="fi" id="fdep" type="number" placeholder="Security Deposit (&#8377;)" inputmode="numeric"&gt;&lt;/div&gt; &lt;div class="fg"&gt;&lt;label class="fl"&gt;Lease Type&lt;/label&gt; &lt;div class="tr"&gt; &lt;div class="to on" id="lt-o" onclick="setLease('open')"&gt;Open-ended&lt;/div&gt; &lt;div class="to" id="lt-f" onclick="setLease('fixed')"&gt;Fixed Period&lt;/div&gt; &lt;/div&gt; &lt;/div&gt; &lt;div class="fg" id="le-fg" style="display:none"&gt; &lt;label class="fl"&gt;Lease End Date&lt;/label&gt;&lt;input class="fi" id="fle" type="date"&gt; &lt;/div&gt; &lt;button class="fsb" onclick="save()"&gt;Save Tenant&lt;/button&gt;`; }else if(type==='payment'){ const room=S.data.rooms.find(r=&gt;r.id===S.roomId); const pd=S.data.payments.filter(p=&gt;p.roomId===S.roomId&amp;&amp;p.monthKey===k).reduce((s,p)=&gt;s+p.amount,0); const bal=Math.max(0,(room?.rent||0)-pd); $('mtl').textContent='Record Payment'; $('mb').innerHTML=` &lt;div class="bb"&gt;&lt;div class="bb-l"&gt;Balance Due &#8212; ${SMONTHS[S.month]} ${S.year}&lt;/div&gt; &lt;div class="bb-v"&gt;${&#8377;(bal)}&lt;/div&gt;&lt;/div&gt; &lt;div class="fg"&gt;&lt;input class="fi" id="fam" type="number" placeholder="Amount Received (&#8377;) *" value="${bal||''}" inputmode="numeric"&gt;&lt;/div&gt; &lt;div class="fg"&gt;&lt;label class="fl"&gt;Payment Method&lt;/label&gt; &lt;div class="mr"&gt;${['Cash','UPI','Bank Transfer','Cheque','Online'].map((m,i)=&gt; `&lt;div class="mo${i===0?' on':''}" onclick="setMeth('${m}',this)"&gt;${m}&lt;/div&gt;` ).join('')}&lt;/div&gt; &lt;/div&gt; &lt;div class="fg"&gt;&lt;label class="fl"&gt;Date&lt;/label&gt;&lt;input class="fi" id="fdt" type="date" value="${td()}"&gt;&lt;/div&gt; &lt;div class="fg"&gt;&lt;input class="fi" id="frm" placeholder="Remarks (optional)"&gt;&lt;/div&gt; &lt;button class="fsb" onclick="save()"&gt;Save Payment&lt;/button&gt;`; } $('ovl').classList.add('on'); setTimeout(()=&gt;$('mb').querySelector('input,select')?.focus(),350); } function setLease(t){ mState.leaseType=t; $('lt-o').classList.toggle('on',t==='open'); $('lt-f').classList.toggle('on',t==='fixed'); $('le-fg').style.display=t==='fixed'?'block':'none'; } function setMeth(m,el){mState.method=m;document.querySelectorAll('.mo').forEach(e=&gt;e.classList.remove('on'));el.classList.add('on')} function closeModal(){$('ovl').classList.remove('on')} function maybeClose(e){if(e.target===$('ovl'))closeModal()} function save(){ const t=mState.type; if(t==='property'){ const name=$('fn')?.value.trim(); if(!name){toast('Property name required');return} S.data.properties.push({id:gid(),name,address:$('fa')?.value.trim()||'',type:$('ft')?.value||'House'}); }else if(t==='room'){ const name=$('fn')?.value.trim(); const rent=parseInt($('fr')?.value||0); if(!name||!rent){toast('Name and rent required');return} S.data.rooms.push({id:gid(),propertyId:S.propId,name,type:$('ft')?.value||'1BHK',rent}); }else if(t==='tenant'){ const name=$('fn')?.value.trim(); if(!name){toast('Tenant name required');return} S.data.tenants.forEach(tn=&gt;{if(tn.roomId===S.roomId)tn.active=false}); S.data.tenants.push({id:gid(),roomId:S.roomId,name, phone:$('fph')?.value.trim()||'', moveIn:$('fmi')?.value||td(), deposit:parseInt($('fdep')?.value||0), leaseType:mState.leaseType, leaseEnd:$('fle')?.value||'', active:true}); }else if(t==='payment'){ const amount=parseInt($('fam')?.value||0); if(!amount){toast('Enter a valid amount');return} const ten=S.data.tenants.find(tn=&gt;tn.roomId===S.roomId&amp;&amp;tn.active); S.data.payments.push({id:gid(),roomId:S.roomId,tenantId:ten?.id||'', amount,method:mState.method, date:$('fdt')?.value||td(), monthKey:mk(), remarks:$('frm')?.value.trim()||''}); } closeModal();renderView();sched();toast('Saved &#10003;'); } /* &#9472;&#9472; DELETE &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472; */ function delProp(pid){ if(!confirm('Delete this property and all its data?'))return; const rids=S.data.rooms.filter(r=&gt;r.propertyId===pid).map(r=&gt;r.id); S.data.properties=S.data.properties.filter(p=&gt;p.id!==pid); S.data.rooms=S.data.rooms.filter(r=&gt;r.propertyId!==pid); S.data.tenants=S.data.tenants.filter(t=&gt;!rids.includes(t.roomId)); S.data.payments=S.data.payments.filter(p=&gt;!rids.includes(p.roomId)); renderView();sched();toast('Property deleted'); } function delRoom(rid){ if(!confirm('Delete this room and all its data?'))return; S.data.rooms=S.data.rooms.filter(r=&gt;r.id!==rid); S.data.tenants=S.data.tenants.filter(t=&gt;t.roomId!==rid); S.data.payments=S.data.payments.filter(p=&gt;p.roomId!==rid); S.view='pr';S.roomId=null;upNav();renderView();sched();toast('Room deleted'); } function delPay(pid){ if(!confirm('Remove this payment?'))return; S.data.payments=S.data.payments.filter(p=&gt;p.id!==pid); renderView();sched();toast('Payment removed'); } let deferredInstall; window.addEventListener('beforeinstallprompt',e=&gt;{e.preventDefault();deferredInstall=e}); </p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>RentTracker</title>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="RentTracker"/>
+<meta name="theme-color" content="#020617"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#020617;--bg2:#0f172a;--bg3:#1e293b;
+  --bdr:#1e293b;--bdr2:#334155;
+  --ind:#6366f1;--ind-d:#4f46e5;--ind-bg:rgba(99,102,241,.14);
+  --em:#34d399;--em-bg:rgba(52,211,153,.1);
+  --am:#fbbf24;--am-bg:rgba(251,191,36,.1);
+  --red:#f87171;--red-bg:rgba(248,113,113,.08);
+  --tx:#f1f5f9;--tx2:#94a3b8;--tx3:#475569;
+  --r:18px;
+}
+html,body{height:100%;background:var(--bg);font-family:'Sora',sans-serif;color:var(--tx);overflow:hidden;-webkit-tap-highlight-color:transparent}
+#app{height:100dvh;max-width:448px;margin:0 auto;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.screen{display:none;flex-direction:column;height:100%}
+.screen.on{display:flex}
+
+/* LOGIN */
+#ls{align-items:center;justify-content:center;gap:22px;padding:40px 28px;background:var(--bg)}
+.logo{font-size:64px;line-height:1}
+.appname{font-size:30px;font-weight:800;letter-spacing:-.5px}
+.apptag{font-size:13px;color:var(--tx3);text-align:center;line-height:1.7}
+.gbtn{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--bdr2);color:var(--tx);font-family:'Sora',sans-serif;font-size:14px;font-weight:500;padding:14px 24px;border-radius:14px;cursor:pointer;width:100%;justify-content:center;transition:border-color .2s,background .2s}
+.gbtn:hover{border-color:var(--ind);background:var(--bg3)}
+.wbox{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:12px;padding:14px 16px;font-size:12px;color:var(--am);line-height:1.8;display:none;width:100%;text-align:left}
+.wbox.on{display:block}
+.wbox code{background:rgba(251,191,36,.15);padding:1px 5px;border-radius:4px;font-family:monospace;font-size:11px}
+
+/* HEADER */
+#hdr{background:var(--bg);border-bottom:1px solid var(--bdr);padding:11px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:20}
+.hbk{width:34px;height:34px;border-radius:50%;background:var(--bg3);border:none;color:var(--tx2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s}
+.hbk:hover{background:var(--bdr2)}
+.htl{flex:1;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hrgt{display:flex;align-items:center;gap:8px}
+.syni{font-size:11px;color:var(--ind);animation:pulse 1s infinite;display:none}
+.av{width:30px;height:30px;border-radius:50%;background:var(--ind-bg);border:1px solid var(--ind);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ind);cursor:pointer;overflow:hidden;flex-shrink:0}
+.av img{width:100%;height:100%;object-fit:cover}
+
+/* CONTENT */
+#cnt{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px;padding-bottom:90px;-webkit-overflow-scrolling:touch}
+#cnt::-webkit-scrollbar{display:none}
+
+/* BOTTOM NAV */
+#bn{position:absolute;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--bdr);display:flex;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px)}
+.nbt{flex:1;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:500;background:none;border:none;cursor:pointer;color:var(--tx3);transition:color .2s;font-family:'Sora',sans-serif}
+.nbt.on{color:var(--ind)}
+.nic{font-size:22px;line-height:1}
+
+/* VIEWS */
+.vw{display:none}.vw.on{display:block;animation:fi .18s ease}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CARD */
+.cd{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.cd.lk{cursor:pointer;transition:border-color .2s}
+.cd.lk:active{border-color:var(--ind)}
+
+/* MONTH SEL */
+.ms{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.mb{width:36px;height:36px;border-radius:50%;background:var(--bg3);border:none;color:var(--tx2);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.mb:hover{background:var(--bdr2)}
+
+/* KPI */
+.kr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.kp{border-radius:16px;padding:12px 8px;text-align:center;border:1px solid var(--bdr)}
+.kv{font-weight:700;font-size:16px;line-height:1.2}
+.kl{font-size:10px;color:var(--tx3);margin-top:3px}
+.kp.i{background:var(--ind-bg)}.kp.i .kv{color:#a5b4fc}
+.kp.e{background:var(--em-bg)}.kp.e .kv{color:var(--em)}
+.kp.a{background:var(--am-bg)}.kp.a .kv{color:var(--am)}
+
+/* PROGRESS */
+.pwrap{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-bottom:16px}
+.ptrk{height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;margin:8px 0 6px}
+.pfil{height:100%;background:linear-gradient(90deg,var(--ind),var(--em));border-radius:99px;transition:width .7s}
+.pmt{display:flex;justify-content:space-between;font-size:11px;color:var(--tx3)}
+
+/* SLBL */
+.sl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--tx3);margin-bottom:10px;margin-top:4px}
+
+/* TAG */
+.tg{font-size:10px;padding:2px 8px;border-radius:99px;background:var(--ind-bg);color:#a5b4fc;display:inline-block}
+
+/* ROOM HEADER */
+.rh{background:linear-gradient(135deg,#1e1b4b,#0f172a);border:1px solid rgba(99,102,241,.4);border-radius:var(--r);padding:20px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-start}
+.rh-l .rt{font-size:11px;color:#a5b4fc;text-transform:uppercase;letter-spacing:.08em}
+.rh-l .rn{font-weight:800;font-size:22px;color:#fff;margin-top:4px}
+.rh-r .rl{font-size:11px;color:#a5b4fc}
+.rh-r .rr{font-weight:800;font-size:22px;color:#fff;margin-top:4px}
+
+/* STAT3 */
+.s3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sc{background:var(--bg3);border-radius:12px;padding:10px;text-align:center}
+.sv{font-weight:700;font-size:15px}
+.sk{font-size:10px;color:var(--tx3);margin-top:2px}
+
+/* PAY ROW */
+.pr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bdr)}
+.pr:last-child{border-bottom:none}
+.pd{font-size:13px;color:var(--tx2)}
+.pm{font-size:11px;color:var(--tx3);margin-top:1px}
+.prr{display:flex;align-items:center;gap:8px}
+.pa{font-weight:600;font-size:14px;color:var(--em)}
+.db{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:4px 6px;transition:color .2s;line-height:1}
+.db:hover{color:var(--red)}
+
+/* BTNS */
+.cbtn{background:var(--em-bg);color:var(--em);border:1px solid rgba(52,211,153,.3);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:99px;cursor:pointer;transition:background .2s}
+.cbtn:hover{background:rgba(52,211,153,.18)}
+.sbtn{background:none;border:1px solid var(--bdr2);color:#a5b4fc;font-family:'Sora',sans-serif;font-size:12px;padding:6px 14px;border-radius:99px;cursor:pointer;transition:background .2s}
+.sbtn:hover{background:var(--ind-bg)}
+.dbtn{width:100%;background:none;border:1px solid rgba(248,113,113,.3);color:var(--red);font-family:'Sora',sans-serif;font-size:14px;padding:12px;border-radius:14px;cursor:pointer;transition:background .2s;margin-top:8px}
+.dbtn:hover{background:var(--red-bg)}
+
+/* FAB */
+#fab{position:fixed;bottom:76px;right:calc(50% - 208px);width:52px;height:52px;border-radius:50%;background:var(--ind);border:none;color:#fff;font-size:28px;cursor:pointer;z-index:30;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(99,102,241,.5);transition:background .2s,transform .15s;font-family:'Sora',sans-serif}
+#fab:active{transform:scale(.9)}
+#fab.hide{display:none}
+
+/* EMPTY */
+.emp{text-align:center;padding:60px 20px}
+.ei{font-size:56px;margin-bottom:14px}
+.et{font-size:14px;color:var(--tx2);margin-bottom:6px}
+.es{font-size:12px;color:var(--tx3)}
+
+/* MODAL */
+#ovl{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:50;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+#ovl.on{opacity:1;pointer-events:all}
+.sht{background:#080e1d;border-top:1px solid var(--bdr2);border-radius:24px 24px 0 0;width:100%;max-width:448px;margin:0 auto;padding:24px 20px 36px;max-height:88dvh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+#ovl.on .sht{transform:translateY(0)}
+.mhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.mtl{font-weight:700;font-size:18px}
+.mcl{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:none;color:var(--tx2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* FORM */
+.fg{margin-bottom:14px}
+.fl{font-size:11px;color:var(--tx3);margin-bottom:6px;display:block}
+.fi{width:100%;background:var(--bg3);border:1px solid var(--bdr2);border-radius:12px;padding:13px 16px;font-size:14px;color:var(--tx);font-family:'Sora',sans-serif;transition:border-color .2s;outline:none}
+.fi:focus{border-color:var(--ind)}
+.fs{width:100%;background:var(--bg3);border:1px solid var(--bdr2);border-radius:12px;padding:13px 16px;font-size:14px;color:var(--tx);font-family:'Sora',sans-serif;appearance:none;outline:none;cursor:pointer}
+.fsb{width:100%;background:var(--ind);border:none;color:#fff;font-family:'Sora',sans-serif;font-size:15px;font-weight:600;padding:16px;border-radius:14px;cursor:pointer;margin-top:8px;transition:background .2s}
+.fsb:hover{background:var(--ind-d)}
+.tr{display:flex;gap:8px}
+.to{flex:1;padding:10px;border-radius:10px;text-align:center;background:var(--bg3);border:1px solid var(--bdr2);font-size:12px;color:var(--tx2);cursor:pointer;transition:all .2s}
+.to.on{background:var(--ind-bg);border-color:var(--ind);color:#a5b4fc}
+.mr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mo{padding:10px 6px;border-radius:10px;text-align:center;background:var(--bg3);border:1px solid var(--bdr2);font-size:12px;color:var(--tx2);cursor:pointer;transition:all .2s}
+.mo.on{background:var(--em-bg);border-color:rgba(52,211,153,.5);color:var(--em)}
+.bb{background:var(--ind-bg);border:1px solid rgba(99,102,241,.3);border-radius:14px;padding:14px;text-align:center;margin-bottom:16px}
+.bb-l{font-size:12px;color:#a5b4fc}
+.bb-v{font-size:26px;font-weight:800;color:#fff;margin-top:4px}
+
+/* TOAST */
+#tst{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--bdr2);color:var(--tx);font-size:13px;padding:10px 20px;border-radius:99px;z-index:100;opacity:0;transition:opacity .3s;white-space:nowrap;max-width:calc(100% - 40px);pointer-events:none}
+#tst.on{opacity:1}
+
+/* RECENTS */
+.rr{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bdr)}
+.rr:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- LOGIN -->
+  <div id="ls" class="screen on">
+    <div class="logo">🏘️</div>
+    <div class="appname">RentTracker</div>
+    <div class="apptag">Manage your rental properties.<br>Data syncs across all family devices via Google Drive.</div>
+    <div class="wbox" id="wb">
+      ⚠️ <strong>One-time setup needed:</strong><br><br>
+      1. Open this <code>index.html</code> in a text editor<br>
+      2. Find the line: <code>YOUR_CLIENT_ID_HERE</code><br>
+      3. Replace it with your Google OAuth 2.0 Client ID<br>
+      4. Follow the full steps in <code>SETUP_GUIDE.txt</code>
+    </div>
+    <button class="gbtn" onclick="signIn()">
+      <svg width="20" height="20" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Sign in with Google
+    </button>
+  </div>
+
+  <!-- APP -->
+  <div id="as" class="screen">
+    <div id="hdr">
+      <button class="hbk" id="bkbtn" onclick="goBack()" style="display:none">←</button>
+      <div class="htl" id="htl">RentTracker</div>
+      <div class="hrgt">
+        <span class="syni" id="syn">⟳ Syncing</span>
+        <div class="av" id="av" onclick="confirmSignOut()" title="Sign out">B</div>
+      </div>
+    </div>
+
+    <div id="cnt">
+      <!-- DASHBOARD -->
+      <div class="vw on" id="v-d">
+        <div class="ms">
+          <button class="mb" onclick="cm(-1)">‹</button>
+          <span style="font-weight:600;font-size:15px" id="ml"></span>
+          <button class="mb" onclick="cm(1)">›</button>
+        </div>
+        <div class="kr" id="kr"></div>
+        <div id="ps"></div>
+        <div id="dp"></div>
+        <div id="dr"></div>
+        <div id="de"></div>
+      </div>
+
+      <!-- PLACES -->
+      <div class="vw" id="v-p">
+        <div id="pl"></div>
+      </div>
+
+      <!-- PROPERTY -->
+      <div class="vw" id="v-pr">
+        <div id="prr"></div>
+      </div>
+
+      <!-- ROOM -->
+      <div class="vw" id="v-r">
+        <div id="rd"></div>
+      </div>
+    </div>
+
+    <div id="bn">
+      <button class="nbt on" id="nb-d" onclick="tab('d')"><span class="nic">📊</span>Dashboard</button>
+      <button class="nbt"    id="nb-p" onclick="tab('p')"><span class="nic">🏘️</span>Places</button>
+    </div>
+  </div>
+</div>
+
+<button id="fab" class="hide" onclick="fabClick()">+</button>
+<div id="ovl" onclick="maybeClose(event)"><div class="sht" onclick="event.stopPropagation()">
+  <div class="mhd"><div class="mtl" id="mtl">Add</div><button class="mcl" onclick="closeModal()">✕</button></div>
+  <div id="mb"></div>
+</div></div>
+<div id="tst"></div>
+
+<script>
+// ╔══════════════════════════════════════════════════════╗
+// ║  FILL IN YOUR GOOGLE CLIENT ID BELOW                 ║
+// ║  (see SETUP_GUIDE.txt for step-by-step instructions) ║
+// ╚══════════════════════════════════════════════════════╝
+const CLIENT_ID = '602370313501-5n59eppkrsjhp7at0og9uj4ugr1nc2pk.apps.googleusercontent.com';
+
+const MONTHS  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const SMONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const FNAME   = 'renttracker-data.json';
+const SCOPES  = 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.profile';
+const EMPTY   = {properties:[],rooms:[],tenants:[],payments:[]};
+
+let S = {
+  data: JSON.parse(JSON.stringify(EMPTY)),
+  view:'d', propId:null, roomId:null,
+  month: new Date().getMonth(),
+  year:  new Date().getFullYear(),
+};
+let tokenClient, token=null, fileId=localStorage.getItem('rt_fid')||null;
+let syncTimer=null, mState={};
+
+const $  = id => document.getElementById(id);
+const gid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const td  = () => new Date().toISOString().slice(0,10);
+const ₹   = n  => '₹'+(n||0).toLocaleString('en-IN');
+const mk  = () => `${S.year}-${S.month}`;
+
+function toast(msg,ms=2400){const t=$('tst');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),ms)}
+function sync(on){$('syn').style.display=on?'inline':'none'}
+
+/* ── AUTH ──────────────────────────────────────────── */
+function signIn(){
+  if(CLIENT_ID.includes('YOUR_CLIENT_ID')){$('wb').classList.add('on');return}
+  if(!tokenClient){
+    tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:CLIENT_ID, scope:SCOPES,
+      callback:async r=>{
+        if(r.error){toast('Sign-in failed');return}
+        token=r.access_token;
+        localStorage.setItem('rt_tok',token);
+        await getProfile();
+        await loadDrive();
+        enterApp();
+      }
+    });
+  }
+  tokenClient.requestAccessToken({prompt:''});
+}
+
+async function getProfile(){
+  try{
+    const r=await gf('https://www.googleapis.com/oauth2/v3/userinfo');
+    const u=await r.json();
+    const av=$('av');
+    if(u.picture)av.innerHTML=`<img src="${u.picture}" alt="">`;
+    else av.textContent=(u.name||'U')[0].toUpperCase();
+  }catch(e){}
+}
+
+function confirmSignOut(){
+  if(!confirm('Sign out?'))return;
+  try{google.accounts.oauth2.revoke(token,()=>{})}catch(e){}
+  token=null;localStorage.removeItem('rt_tok');
+  $('ls').classList.add('on');$('as').classList.remove('on');$('fab').classList.add('hide');
+}
+
+function enterApp(){
+  $('ls').classList.remove('on');$('as').classList.add('on');$('fab').classList.remove('hide');render();
+}
+
+window.addEventListener('load',async()=>{
+  if(CLIENT_ID.includes('YOUR_CLIENT_ID'))$('wb').classList.add('on');
+  const saved=localStorage.getItem('rt_tok');if(!saved)return;
+  try{
+    const info=await(await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${saved}`)).json();
+    if(info.error){localStorage.removeItem('rt_tok');return}
+    token=saved;await getProfile();await loadDrive();enterApp();
+  }catch(e){}
+});
+
+/* ── DRIVE ─────────────────────────────────────────── */
+async function gf(url,opts={}){
+  const r=await fetch(url,{...opts,headers:{Authorization:`Bearer ${token}`,  ...(opts.headers||{})}});
+  if(r.status===401){tokenClient?.requestAccessToken({prompt:''});throw new Error('auth')}
+  return r;
+}
+
+async function ensureFile(){
+  if(fileId)return fileId;
+  const r=await gf(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${FNAME}'&fields=files(id)`);
+  const j=await r.json();
+  if(j.files?.length){fileId=j.files[0].id;localStorage.setItem('rt_fid',fileId);return fileId}
+  const meta=JSON.stringify({name:FNAME,parents:['appDataFolder']});
+  const form=new FormData();
+  form.append('metadata',new Blob([meta],{type:'application/json'}));
+  form.append('file',new Blob([JSON.stringify(EMPTY)],{type:'application/json'}));
+  const cr=await gf('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body:form});
+  const c=await cr.json();fileId=c.id;localStorage.setItem('rt_fid',fileId);return fileId;
+}
+
+async function loadDrive(){
+  sync(true);
+  try{
+    const fid=await ensureFile();
+    const r=await gf(`https://www.googleapis.com/drive/v3/files/${fid}?alt=media`);
+    if(r.ok)S.data=await r.json();
+  }catch(e){if(e.message!=='auth')toast('Could not load data')}
+  sync(false);
+}
+
+async function saveDrive(){
+  if(!token)return;sync(true);
+  try{
+    const fid=await ensureFile();
+    await gf(`https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=media`,{
+      method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(S.data)
+    });
+  }catch(e){if(e.message!=='auth')toast('Sync failed')}
+  sync(false);
+}
+
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden&&token)loadDrive().then(()=>render());
+});
+
+function sched(){clearTimeout(syncTimer);syncTimer=setTimeout(saveDrive,1000)}
+
+/* ── NAV ───────────────────────────────────────────── */
+function tab(v){S.view=v;S.propId=null;S.roomId=null;upNav();renderView()}
+function goProp(id){S.propId=id;S.view='pr';upNav();renderView()}
+function goRoom(id){S.roomId=id;S.view='r';upNav();renderView()}
+function goBack(){
+  if(S.view==='r'){S.view='pr';S.roomId=null}
+  else{S.view='p';S.propId=null}
+  upNav();renderView();
+}
+
+function upNav(){
+  ['d','p'].forEach(v=>$('nb-'+v).classList.toggle('on',S.view===v));
+  const deep=S.view==='pr'||S.view==='r';
+  $('bkbtn').style.display=deep?'flex':'none';
+  $('bn').style.display=deep?'none':'flex';
+  const titles={
+    d:'RentTracker',p:'My Properties',
+    pr:S.data.properties.find(x=>x.id===S.propId)?.name||'',
+    r:S.data.rooms.find(x=>x.id===S.roomId)?.name||'',
+  };
+  $('htl').textContent=titles[S.view]||'RentTracker';
+  if(S.view==='r'){$('fab').textContent='₹';$('fab').style.background='#059669';$('fab').style.boxShadow='0 4px 20px rgba(5,150,105,.5)'}
+  else{$('fab').textContent='+';$('fab').style.background='var(--ind)';$('fab').style.boxShadow='0 4px 20px rgba(99,102,241,.5)'}
+}
+
+function fabClick(){
+  if(S.view==='d'||S.view==='p')openModal('property');
+  else if(S.view==='pr')openModal('room');
+  else if(S.view==='r')openModal('payment');
+}
+
+function cm(d){
+  S.month+=d;
+  if(S.month<0){S.month=11;S.year--}
+  if(S.month>11){S.month=0;S.year++}
+  renderView();
+}
+
+/* ── RENDER ────────────────────────────────────────── */
+function render(){upNav();renderView()}
+function renderView(){
+  ['d','p','pr','r'].forEach(v=>$('v-'+v).classList.toggle('on',S.view===v));
+  if(S.view==='d')rDash();
+  else if(S.view==='p')rPlaces();
+  else if(S.view==='pr')rProp();
+  else if(S.view==='r')rRoom();
+}
+
+/* DASHBOARD */
+function rDash(){
+  const k=mk();
+  $('ml').textContent=`${MONTHS[S.month]} ${S.year}`;
+  const active=S.data.tenants.filter(t=>t.active);
+  const due=active.reduce((s,t)=>{const r=S.data.rooms.find(r=>r.id===t.roomId);return s+(r?.rent||0)},0);
+  const coll=S.data.payments.filter(p=>p.monthKey===k).reduce((s,p)=>s+p.amount,0);
+  const pend=Math.max(0,due-coll);
+  $('kr').innerHTML=`
+    <div class="kp i"><div class="kv">${active.length}</div><div class="kl">Tenants</div></div>
+    <div class="kp e"><div class="kv">${₹(coll)}</div><div class="kl">Collected</div></div>
+    <div class="kp a"><div class="kv">${₹(pend)}</div><div class="kl">Pending</div></div>`;
+  $('ps').innerHTML=due>0?`<div class="pwrap">
+    <div style="display:flex;justify-content:space-between;font-size:13px">
+      <span style="color:var(--tx2)">Collection Progress</span>
+      <span style="font-weight:600">${Math.round(coll/due*100)}%</span>
+    </div>
+    <div class="ptrk"><div class="pfil" style="width:${Math.min(100,coll/due*100)}%"></div></div>
+    <div class="pmt"><span>${₹(coll)} collected</span><span>${₹(due)} total due</span></div>
+  </div>` : '';
+  if(S.data.properties.length){
+    $('dp').innerHTML='<div class="sl">Properties</div>'+S.data.properties.map(p=>{
+      const pr=S.data.rooms.filter(r=>r.propertyId===p.id);
+      const occ=pr.filter(r=>S.data.tenants.some(t=>t.roomId===r.id&&t.active)).length;
+      const pc=S.data.payments.filter(x=>x.monthKey===k&&pr.some(r=>r.id===x.roomId)).reduce((s,x)=>s+x.amount,0);
+      const pd=pr.reduce((s,r)=>S.data.tenants.some(t=>t.roomId===r.id&&t.active)?s+r.rent:s,0);
+      return `<div class="cd lk" onclick="goProp('${p.id}')">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-weight:700;font-size:15px">${p.name}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:3px">${pr.length} rooms · ${occ} occupied</div></div>
+          <div style="text-align:right"><div style="font-weight:700;color:var(--em)">${₹(pc)}</div>
+          <div style="font-size:11px;color:var(--tx3)">of ${₹(pd)}</div></div>
+        </div></div>`;
+    }).join('');
+  }else $('dp').innerHTML='';
+  const rec=S.data.payments.filter(p=>p.monthKey===k).slice(-5).reverse();
+  if(rec.length){
+    $('dr').innerHTML='<div class="sl" style="margin-top:6px">Recent Payments</div><div class="cd" style="padding:4px 16px">'+rec.map(pay=>{
+      const rm=S.data.rooms.find(r=>r.id===pay.roomId);
+      const tn=S.data.tenants.find(t=>t.id===pay.tenantId);
+      const pr=rm?S.data.properties.find(p=>p.id===rm.propertyId):null;
+      return `<div class="rr">
+        <div><div style="font-size:14px;font-weight:500">${tn?.name||'—'}</div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:1px">${pr?.name||''} · ${rm?.name||''}</div></div>
+        <div style="text-align:right"><div style="font-weight:600;color:var(--em)">${₹(pay.amount)}</div>
+        <div style="font-size:11px;color:var(--tx3)">${pay.date}</div></div>
+      </div>`;
+    }).join('')+'</div>';
+  }else $('dr').innerHTML='';
+  $('de').innerHTML=!S.data.properties.length?`<div class="emp"><div class="ei">🏘️</div>
+    <div class="et">No properties yet</div><div class="es">Tap + to add your first property</div></div>`:'';
+}
+
+/* PLACES */
+function rPlaces(){
+  if(!S.data.properties.length){
+    $('pl').innerHTML=`<div class="emp"><div class="ei">🏠</div><div class="et">No properties added</div><div class="es">Tap + to add your first property</div></div>`;return;
+  }
+  $('pl').innerHTML=S.data.properties.map(p=>{
+    const pr=S.data.rooms.filter(r=>r.propertyId===p.id);
+    const occ=pr.filter(r=>S.data.tenants.some(t=>t.roomId===r.id&&t.active)).length;
+    return `<div class="cd lk" onclick="goProp('${p.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:16px">${p.name}</div>
+          ${p.address?`<div style="font-size:12px;color:var(--tx3);margin-top:3px">📍 ${p.address}</div>`:''}
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
+            <span class="tg">${p.type}</span>
+            <span style="font-size:11px;color:var(--tx3)">${pr.length} rooms · ${occ} occupied</span>
+          </div>
+        </div>
+        <button onclick="event.stopPropagation();delProp('${p.id}')"
+          style="background:none;border:none;color:var(--tx3);font-size:22px;cursor:pointer;padding:4px;flex-shrink:0;line-height:1;transition:color .2s"
+          onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--tx3)'">×</button>
+      </div></div>`;
+  }).join('');
+}
+
+/* PROPERTY */
+function rProp(){
+  const k=mk();
+  const rooms=S.data.rooms.filter(r=>r.propertyId===S.propId);
+  if(!rooms.length){$('prr').innerHTML=`<div class="emp"><div class="ei">🚪</div><div class="et">No rooms added</div><div class="es">Tap + to add a room</div></div>`;return}
+  $('prr').innerHTML=rooms.map(r=>{
+    const t=S.data.tenants.find(tn=>tn.roomId===r.id&&tn.active);
+    const pd=S.data.payments.filter(p=>p.roomId===r.id&&p.monthKey===k).reduce((s,p)=>s+p.amount,0);
+    const bal=(r.rent||0)-pd;
+    return `<div class="cd lk" onclick="goRoom('${r.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-weight:700;font-size:15px">${r.name}</div>
+          <div style="font-size:12px;color:var(--tx3);margin-top:3px">${r.type} · ${₹(r.rent)}/mo</div>
+          ${t?`<div style="display:flex;align-items:center;gap:5px;margin-top:8px;font-size:13px;color:#a5b4fc">
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--em);flex-shrink:0;display:inline-block"></span>${t.name}</div>`
+            :`<div style="display:flex;align-items:center;gap:5px;margin-top:8px;font-size:12px;color:var(--tx3)">
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--tx3);flex-shrink:0;display:inline-block"></span>Vacant</div>`}
+        </div>
+        ${t?`<div style="text-align:right">
+          <div style="font-weight:700;font-size:15px;color:${bal<=0?'var(--em)':'var(--am)'}">${bal<=0?'✓ Paid':₹(bal)+' due'}</div>
+          ${pd>0?`<div style="font-size:11px;color:var(--tx3);margin-top:2px">${₹(pd)} paid</div>`:''}
+        </div>`:''}
+      </div></div>`;
+  }).join('');
+}
+
+/* ROOM DETAIL */
+function rRoom(){
+  const room=S.data.rooms.find(r=>r.id===S.roomId);if(!room)return;
+  const tenant=S.data.tenants.find(t=>t.roomId===S.roomId&&t.active);
+  const k=mk();
+  const paid=S.data.payments.filter(p=>p.roomId===S.roomId&&p.monthKey===k).reduce((s,p)=>s+p.amount,0);
+  const bal=Math.max(0,(room.rent||0)-paid);
+  const mPays=S.data.payments.filter(p=>p.roomId===S.roomId&&p.monthKey===k);
+  const allP=S.data.payments.filter(p=>p.roomId===S.roomId).slice().reverse();
+
+  let h=`<div class="rh">
+    <div class="rh-l"><div class="rt">${room.type}</div><div class="rn">${room.name}</div></div>
+    <div class="rh-r"><div class="rl">Monthly Rent</div><div class="rr">${₹(room.rent)}</div></div>
+  </div>`;
+
+  h+=tenant?`<div class="cd" style="margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="sl" style="margin-bottom:4px">Tenant</div>
+        <div style="font-weight:700;font-size:16px">${tenant.name}</div>
+        ${tenant.phone?`<div style="font-size:13px;color:var(--tx2);margin-top:3px">📞 ${tenant.phone}</div>`:''}
+        <div style="display:flex;gap:16px;margin-top:6px;flex-wrap:wrap">
+          <div style="font-size:12px;color:var(--tx3)">In: ${tenant.moveIn}</div>
+          ${tenant.deposit>0?`<div style="font-size:12px;color:#a5b4fc">Deposit: ${₹(tenant.deposit)}</div>`:''}
+        </div>
+        ${tenant.leaseType==='fixed'&&tenant.leaseEnd?`<div style="font-size:12px;color:var(--am);margin-top:4px">Lease until: ${tenant.leaseEnd}</div>`:''}
+      </div>
+      <button class="sbtn" onclick="openModal('tenant')">Change</button>
+    </div></div>`
+  :`<div class="cd" style="border-color:rgba(251,191,36,.3);text-align:center;padding:20px;margin-bottom:12px">
+    <div style="color:var(--am);margin-bottom:12px">No tenant assigned</div>
+    <button class="sbtn" onclick="openModal('tenant')">Add Tenant</button></div>`;
+
+  if(tenant){
+    const prows=mPays.map(p=>`<div class="pr">
+      <div><div class="pd">${p.date} · ${p.method}</div>${p.remarks?`<div class="pm">${p.remarks}</div>`:''}</div>
+      <div class="prr"><span class="pa">${₹(p.amount)}</span>
+        <button class="db" onclick="delPay('${p.id}')">×</button>
+      </div></div>`).join('');
+    h+=`<div class="cd" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div class="sl" style="margin:0">Rent — ${SMONTHS[S.month]} ${S.year}</div>
+        <button class="cbtn" onclick="openModal('payment')">+ Collect</button>
+      </div>
+      <div class="s3">
+        <div class="sc"><div class="sv">${₹(room.rent)}</div><div class="sk">Due</div></div>
+        <div class="sc"><div class="sv" style="color:var(--em)">${₹(paid)}</div><div class="sk">Paid</div></div>
+        <div class="sc"><div class="sv" style="color:${bal>0?'var(--am)':'var(--em)'}">${₹(bal)}</div><div class="sk">Balance</div></div>
+      </div>
+      ${prows?`<div style="margin-top:8px">${prows}</div>`:''}
+    </div>`;
+  }
+
+  if(allP.length){
+    h+=`<div class="sl" style="margin-top:4px">All History</div>
+    <div class="cd" style="padding:4px 16px">${allP.map(p=>`<div class="pr">
+      <div><div class="pd">${p.date} · ${p.method}</div><div class="pm">${p.monthKey}${p.remarks?' · '+p.remarks:''}</div></div>
+      <span class="pa">${₹(p.amount)}</span></div>`).join('')}</div>`;
+  }
+
+  h+=`<button class="dbtn" onclick="delRoom('${room.id}')">Delete Room</button>`;
+  $('rd').innerHTML=h;
+}
+
+/* ── MODAL ─────────────────────────────────────────── */
+function openModal(type){
+  mState={type,leaseType:'open',method:'Cash'};
+  const k=mk();
+  if(type==='property'){
+    $('mtl').textContent='Add Property';
+    $('mb').innerHTML=`
+      <div class="fg"><input class="fi" id="fn" placeholder="Property Name *" autocomplete="off"></div>
+      <div class="fg"><input class="fi" id="fa" placeholder="Address (optional)" autocomplete="off"></div>
+      <div class="fg"><select class="fs" id="ft">
+        <option>House</option><option>Apartment</option><option>Building</option><option>Shop</option><option>Plot</option>
+      </select></div>
+      <button class="fsb" onclick="save()">Save Property</button>`;
+  }else if(type==='room'){
+    $('mtl').textContent='Add Room';
+    $('mb').innerHTML=`
+      <div class="fg"><input class="fi" id="fn" placeholder="Room Name *" autocomplete="off"></div>
+      <div class="fg"><select class="fs" id="ft">
+        <option>1BHK</option><option>2BHK</option><option>3BHK</option><option>Studio</option><option>Single Room</option><option>Shop</option><option>Office</option>
+      </select></div>
+      <div class="fg"><input class="fi" id="fr" type="number" placeholder="Monthly Rent (₹) *" inputmode="numeric"></div>
+      <button class="fsb" onclick="save()">Save Room</button>`;
+  }else if(type==='tenant'){
+    $('mtl').textContent='Add / Change Tenant';
+    $('mb').innerHTML=`
+      <div class="fg"><input class="fi" id="fn" placeholder="Tenant Name *" autocomplete="off"></div>
+      <div class="fg"><input class="fi" id="fph" type="tel" placeholder="Phone Number" inputmode="tel"></div>
+      <div class="fg"><label class="fl">Move-In Date</label><input class="fi" id="fmi" type="date" value="${td()}"></div>
+      <div class="fg"><input class="fi" id="fdep" type="number" placeholder="Security Deposit (₹)" inputmode="numeric"></div>
+      <div class="fg"><label class="fl">Lease Type</label>
+        <div class="tr">
+          <div class="to on" id="lt-o" onclick="setLease('open')">Open-ended</div>
+          <div class="to" id="lt-f" onclick="setLease('fixed')">Fixed Period</div>
+        </div>
+      </div>
+      <div class="fg" id="le-fg" style="display:none">
+        <label class="fl">Lease End Date</label><input class="fi" id="fle" type="date">
+      </div>
+      <button class="fsb" onclick="save()">Save Tenant</button>`;
+  }else if(type==='payment'){
+    const room=S.data.rooms.find(r=>r.id===S.roomId);
+    const pd=S.data.payments.filter(p=>p.roomId===S.roomId&&p.monthKey===k).reduce((s,p)=>s+p.amount,0);
+    const bal=Math.max(0,(room?.rent||0)-pd);
+    $('mtl').textContent='Record Payment';
+    $('mb').innerHTML=`
+      <div class="bb"><div class="bb-l">Balance Due — ${SMONTHS[S.month]} ${S.year}</div>
+      <div class="bb-v">${₹(bal)}</div></div>
+      <div class="fg"><input class="fi" id="fam" type="number" placeholder="Amount Received (₹) *" value="${bal||''}" inputmode="numeric"></div>
+      <div class="fg"><label class="fl">Payment Method</label>
+        <div class="mr">${['Cash','UPI','Bank Transfer','Cheque','Online'].map((m,i)=>
+          `<div class="mo${i===0?' on':''}" onclick="setMeth('${m}',this)">${m}</div>`
+        ).join('')}</div>
+      </div>
+      <div class="fg"><label class="fl">Date</label><input class="fi" id="fdt" type="date" value="${td()}"></div>
+      <div class="fg"><input class="fi" id="frm" placeholder="Remarks (optional)"></div>
+      <button class="fsb" onclick="save()">Save Payment</button>`;
+  }
+  $('ovl').classList.add('on');
+  setTimeout(()=>$('mb').querySelector('input,select')?.focus(),350);
+}
+
+function setLease(t){
+  mState.leaseType=t;
+  $('lt-o').classList.toggle('on',t==='open');
+  $('lt-f').classList.toggle('on',t==='fixed');
+  $('le-fg').style.display=t==='fixed'?'block':'none';
+}
+function setMeth(m,el){mState.method=m;document.querySelectorAll('.mo').forEach(e=>e.classList.remove('on'));el.classList.add('on')}
+function closeModal(){$('ovl').classList.remove('on')}
+function maybeClose(e){if(e.target===$('ovl'))closeModal()}
+
+function save(){
+  const t=mState.type;
+  if(t==='property'){
+    const name=$('fn')?.value.trim();
+    if(!name){toast('Property name required');return}
+    S.data.properties.push({id:gid(),name,address:$('fa')?.value.trim()||'',type:$('ft')?.value||'House'});
+  }else if(t==='room'){
+    const name=$('fn')?.value.trim();
+    const rent=parseInt($('fr')?.value||0);
+    if(!name||!rent){toast('Name and rent required');return}
+    S.data.rooms.push({id:gid(),propertyId:S.propId,name,type:$('ft')?.value||'1BHK',rent});
+  }else if(t==='tenant'){
+    const name=$('fn')?.value.trim();
+    if(!name){toast('Tenant name required');return}
+    S.data.tenants.forEach(tn=>{if(tn.roomId===S.roomId)tn.active=false});
+    S.data.tenants.push({id:gid(),roomId:S.roomId,name,
+      phone:$('fph')?.value.trim()||'',
+      moveIn:$('fmi')?.value||td(),
+      deposit:parseInt($('fdep')?.value||0),
+      leaseType:mState.leaseType,
+      leaseEnd:$('fle')?.value||'',
+      active:true});
+  }else if(t==='payment'){
+    const amount=parseInt($('fam')?.value||0);
+    if(!amount){toast('Enter a valid amount');return}
+    const ten=S.data.tenants.find(tn=>tn.roomId===S.roomId&&tn.active);
+    S.data.payments.push({id:gid(),roomId:S.roomId,tenantId:ten?.id||'',
+      amount,method:mState.method,
+      date:$('fdt')?.value||td(),
+      monthKey:mk(),
+      remarks:$('frm')?.value.trim()||''});
+  }
+  closeModal();renderView();sched();toast('Saved ✓');
+}
+
+/* ── DELETE ────────────────────────────────────────── */
+function delProp(pid){
+  if(!confirm('Delete this property and all its data?'))return;
+  const rids=S.data.rooms.filter(r=>r.propertyId===pid).map(r=>r.id);
+  S.data.properties=S.data.properties.filter(p=>p.id!==pid);
+  S.data.rooms=S.data.rooms.filter(r=>r.propertyId!==pid);
+  S.data.tenants=S.data.tenants.filter(t=>!rids.includes(t.roomId));
+  S.data.payments=S.data.payments.filter(p=>!rids.includes(p.roomId));
+  renderView();sched();toast('Property deleted');
+}
+function delRoom(rid){
+  if(!confirm('Delete this room and all its data?'))return;
+  S.data.rooms=S.data.rooms.filter(r=>r.id!==rid);
+  S.data.tenants=S.data.tenants.filter(t=>t.roomId!==rid);
+  S.data.payments=S.data.payments.filter(p=>p.roomId!==rid);
+  S.view='pr';S.roomId=null;upNav();renderView();sched();toast('Room deleted');
+}
+function delPay(pid){
+  if(!confirm('Remove this payment?'))return;
+  S.data.payments=S.data.payments.filter(p=>p.id!==pid);
+  renderView();sched();toast('Payment removed');
+}
+
+let deferredInstall;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e});
+</script>
+</body>
+</html>
