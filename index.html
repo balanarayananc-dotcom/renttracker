@@ -179,7 +179,7 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',sans-serif;color:v
 <div id="app">
 
   <!-- LOGIN -->
-  <div id="ls" class="screen on">
+  <div id="ls" class="screen">
     <div class="logo">🏘️</div>
     <div class="appname">RentTracker</div>
     <div class="apptag">Manage your rental properties.<br>Data syncs across all family devices via Google Drive.</div>
@@ -199,6 +199,13 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',sans-serif;color:v
       </svg>
       Sign in with Google
     </button>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loading-screen" class="screen on" style="align-items:center;justify-content:center;gap:14px">
+    <div style="font-size:52px">🏘️</div>
+    <div style="font-size:22px;font-weight:800;color:var(--tx)">RentTracker</div>
+    <div style="font-size:13px;color:var(--tx3);animation:pulse 1.2s infinite">Loading…</div>
   </div>
 
   <!-- APP -->
@@ -324,18 +331,30 @@ function confirmSignOut(){
   $('ls').classList.add('on');$('as').classList.remove('on');$('fab').classList.add('hide');
 }
 
+function showLogin(){
+  $('loading-screen').classList.remove('on');
+  $('as').classList.remove('on');
+  $('ls').classList.add('on');
+  $('fab').classList.add('hide');
+  if(CLIENT_ID.includes('YOUR_CLIENT_ID'))$('wb').classList.add('on');
+}
+
 function enterApp(){
-  $('ls').classList.remove('on');$('as').classList.add('on');$('fab').classList.remove('hide');render();
+  $('loading-screen').classList.remove('on');
+  $('ls').classList.remove('on');
+  $('as').classList.add('on');
+  $('fab').classList.remove('hide');
+  render();
 }
 
 window.addEventListener('load',async()=>{
-  if(CLIENT_ID.includes('YOUR_CLIENT_ID'))$('wb').classList.add('on');
-  const saved=localStorage.getItem('rt_tok');if(!saved)return;
+  const saved=localStorage.getItem('rt_tok');
+  if(!saved){showLogin();return}
   try{
     const info=await(await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${saved}`)).json();
-    if(info.error){localStorage.removeItem('rt_tok');return}
+    if(info.error){localStorage.removeItem('rt_tok');showLogin();return}
     token=saved;await getProfile();await loadDrive();enterApp();
-  }catch(e){}
+  }catch(e){showLogin();}
 });
 
 /* ── DRIVE ─────────────────────────────────────────── */
@@ -411,7 +430,8 @@ function upNav(){
 }
 
 function fabClick(){
-  if(S.view==='d'||S.view==='p')openModal('property');
+  if(S.view==='d')openModal('collect');
+  else if(S.view==='p')openModal('property');
   else if(S.view==='pr')openModal('room');
   else if(S.view==='r')openModal('payment');
 }
@@ -450,12 +470,8 @@ function rDash(){
   const coll=S.data.payments.filter(p=>p.monthKey===k).reduce((s,p)=>s+p.amount,0);
   const pend=Math.max(0,due-coll);
 
-  // Behind = tenants who have NOT fully paid this month
-  const behind=active.filter(t=>{
-    const r=S.data.rooms.find(r=>r.id===t.roomId);
-    const paid=S.data.payments.filter(p=>p.roomId===t.roomId&&p.monthKey===k).reduce((s,p)=>s+p.amount,0);
-    return paid<(r?.rent||0);
-  });
+  // Behind = tenants with cumulative outstanding balance
+  const behind=active.filter(t=>tenantBalance(t.id)>0);
 
   // KPI row 1 — property overview
   $('kr').innerHTML=`
@@ -484,8 +500,7 @@ function rDash(){
     const rows=behind.map(t=>{
       const rm=S.data.rooms.find(r=>r.id===t.roomId);
       const pr=rm?S.data.properties.find(p=>p.id===rm.propertyId):null;
-      const paid=S.data.payments.filter(p=>p.roomId===t.roomId&&p.monthKey===k).reduce((s,p)=>s+p.amount,0);
-      const bal=(rm?.rent||0)-paid;
+      const bal=tenantBalance(t.id);
       return `<div class="rr" style="align-items:center">
         <div style="flex:1;min-width:0">
           <div style="font-size:14px;font-weight:600;color:var(--tx)">${t.name}</div>
@@ -665,6 +680,22 @@ function rRoom(){
 }
 
 /* ── MODAL ─────────────────────────────────────────── */
+
+// Cumulative balance for a tenant = total rent owed since moveIn minus all payments ever made
+function tenantBalance(tenantId){
+  const t=S.data.tenants.find(x=>x.id===tenantId);if(!t)return 0;
+  const room=S.data.rooms.find(r=>r.id===t.roomId);if(!room)return 0;
+  const moveIn=new Date(t.moveIn);
+  const now=new Date();
+  // Count months from moveIn to current selected month (inclusive)
+  const fromY=moveIn.getFullYear(), fromM=moveIn.getMonth();
+  const toY=S.year, toM=S.month;
+  const totalMonths=(toY-fromY)*12+(toM-fromM)+1;
+  const totalDue=Math.max(0,totalMonths)*(room.rent||0);
+  const totalPaid=S.data.payments.filter(p=>p.roomId===room.id).reduce((s,p)=>s+p.amount,0);
+  return Math.max(0,totalDue-totalPaid);
+}
+
 function openModal(type, editId=null){
   mState={type, editId, leaseType:'open', method:'Cash'};
   const k=mk();
@@ -675,7 +706,40 @@ function openModal(type, editId=null){
   const et = editId && type==='tenant'   ? S.data.tenants.find(x=>x.id===editId)     : null;
   if(et) mState.leaseType = et.leaseType||'open';
 
-  if(type==='property'){
+  if(type==='collect'){
+    // Collect rent from dashboard — pick tenant, show cumulative balance
+    const active=S.data.tenants.filter(t=>t.active);
+    $('mtl').textContent='Collect Rent';
+    if(!active.length){
+      $('mb').innerHTML=`<div style="text-align:center;padding:20px;color:var(--tx3)">No active tenants yet.</div>`;
+      $('ovl').classList.add('on');return;
+    }
+    const tenantOptions=active.map(t=>{
+      const rm=S.data.rooms.find(r=>r.id===t.roomId);
+      const pr=rm?S.data.properties.find(p=>p.id===rm.propertyId):null;
+      const bal=tenantBalance(t.id);
+      return `<option value="${t.id}">${t.name} — ${pr?.name||''} / ${rm?.name||''} (${bal>0?'₹'+bal.toLocaleString('en-IN')+' pending':'Paid up'})`;
+    }).join('');
+    $('mb').innerHTML=`
+      <div class="fg"><label class="fl">Select Tenant</label>
+        <select class="fs" id="f-ctenant" onchange="updateCollectBal(this.value)">${tenantOptions}</select>
+      </div>
+      <div class="bb" id="collect-bal-box">
+        <div class="bb-l" id="collect-bal-lbl">Total Pending</div>
+        <div class="bb-v" id="collect-bal-val">—</div>
+      </div>
+      <div class="fg"><input class="fi" id="fam" type="number" placeholder="Amount Received (₹) *" inputmode="numeric"></div>
+      <div class="fg"><label class="fl">Payment Method</label>
+        <div class="mr">${['Cash','UPI','Bank Transfer','Cheque','Online'].map((m,i)=>
+          `<div class="mo${i===0?' on':''}" onclick="setMeth('${m}',this)">${m}</div>`
+        ).join('')}</div>
+      </div>
+      <div class="fg"><label class="fl">Date</label><input class="fi" id="fdt" type="date" value="${td()}"></div>
+      <div class="fg"><input class="fi" id="frm" placeholder="Remarks (optional)"></div>
+      <button class="fsb" onclick="save()">Save Payment</button>`;
+    // Trigger balance display for first tenant
+    setTimeout(()=>updateCollectBal($('f-ctenant')?.value),50);
+  } else if(type==='property'){
     $('mtl').textContent = ep ? 'Edit Property' : 'Add Property';
     $('mb').innerHTML=`
       <div class="fg"><input class="fi" id="fn" placeholder="Property Name *" autocomplete="off" value="${ep?.name||''}"></div>
@@ -733,6 +797,15 @@ function openModal(type, editId=null){
   setTimeout(()=>$('mb').querySelector('input,select')?.focus(),350);
 }
 
+function updateCollectBal(tenantId){
+  if(!tenantId)return;
+  const bal=tenantBalance(tenantId);
+  const el=$('collect-bal-val');const lbl=$('collect-bal-lbl');
+  if(el){el.textContent=bal>0?money(bal):'₹0 — All paid up';}
+  if(lbl){lbl.textContent=bal>0?'Total Pending (all months)':'Status';}
+  const am=$('fam');if(am&&bal>0)am.value=bal;else if(am)am.value='';
+}
+
 function setLease(t){
   mState.leaseType=t;
   $('lt-o').classList.toggle('on',t==='open');
@@ -746,7 +819,17 @@ function maybeClose(e){if(e.target===$('ovl'))closeModal()}
 function save(){
   const t=mState.type;
   const eid=mState.editId;
-  if(t==='property'){
+  if(t==='collect'){
+    const tenantId=$('f-ctenant')?.value;
+    const amount=parseInt($('fam')?.value||0);
+    if(!tenantId||!amount){toast('Select tenant and enter amount');return}
+    const ten=S.data.tenants.find(x=>x.id===tenantId);
+    S.data.payments.push({id:gid(),roomId:ten?.roomId||'',tenantId,
+      amount,method:mState.method,
+      date:$('fdt')?.value||td(),
+      monthKey:mk(),
+      remarks:$('frm')?.value.trim()||''});
+  } else if(t==='property'){
     const name=$('fn')?.value.trim();
     if(!name){toast('Property name required');return}
     if(eid){
