@@ -117,6 +117,8 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',sans-serif;color:v
 .pa{font-weight:600;font-size:14px;color:var(--em)}
 .db{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:4px 6px;transition:color .2s;line-height:1}
 .db:hover{color:var(--red)}
+.eb{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:13px;padding:4px 8px;transition:color .2s;line-height:1}
+.eb:hover{color:var(--ind)}
 
 /* BTNS */
 .cbtn{background:var(--em-bg);color:var(--em);border:1px solid rgba(52,211,153,.3);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:99px;cursor:pointer;transition:background .2s}
@@ -280,7 +282,7 @@ let syncTimer=null, mState={};
 const $  = id => document.getElementById(id);
 const gid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const td  = () => new Date().toISOString().slice(0,10);
-const money   = n  => '₹'+(n||0).toLocaleString('en-IN');
+const ₹   = n  => '₹'+(n||0).toLocaleString('en-IN');
 const mk  = () => `${S.year}-${S.month}`;
 
 function toast(msg,ms=2400){const t=$('tst');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),ms)}
@@ -441,15 +443,15 @@ function rDash(){
   const pend=Math.max(0,due-coll);
   $('kr').innerHTML=`
     <div class="kp i"><div class="kv">${active.length}</div><div class="kl">Tenants</div></div>
-    <div class="kp e"><div class="kv">${money(coll)}</div><div class="kl">Collected</div></div>
-    <div class="kp a"><div class="kv">${money(pend)}</div><div class="kl">Pending</div></div>`;
+    <div class="kp e"><div class="kv">${₹(coll)}</div><div class="kl">Collected</div></div>
+    <div class="kp a"><div class="kv">${₹(pend)}</div><div class="kl">Pending</div></div>`;
   $('ps').innerHTML=due>0?`<div class="pwrap">
     <div style="display:flex;justify-content:space-between;font-size:13px">
       <span style="color:var(--tx2)">Collection Progress</span>
       <span style="font-weight:600">${Math.round(coll/due*100)}%</span>
     </div>
     <div class="ptrk"><div class="pfil" style="width:${Math.min(100,coll/due*100)}%"></div></div>
-    <div class="pmt"><span>${money(coll)} collected</span><span>${money(due)} total due</span></div>
+    <div class="pmt"><span>${₹(coll)} collected</span><span>${₹(due)} total due</span></div>
   </div>` : '';
   if(S.data.properties.length){
     $('dp').innerHTML='<div class="sl">Properties</div>'+S.data.properties.map(p=>{
@@ -461,8 +463,8 @@ function rDash(){
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div><div style="font-weight:700;font-size:15px">${p.name}</div>
           <div style="font-size:11px;color:var(--tx3);margin-top:3px">${pr.length} rooms · ${occ} occupied</div></div>
-          <div style="text-align:right"><div style="font-weight:700;color:var(--em)">${money(pc)}</div>
-          <div style="font-size:11px;color:var(--tx3)">of ${money(pd)}</div></div>
+          <div style="text-align:right"><div style="font-weight:700;color:var(--em)">${₹(pc)}</div>
+          <div style="font-size:11px;color:var(--tx3)">of ${₹(pd)}</div></div>
         </div></div>`;
     }).join('');
   }else $('dp').innerHTML='';
@@ -475,7 +477,7 @@ function rDash(){
       return `<div class="rr">
         <div><div style="font-size:14px;font-weight:500">${tn?.name||'—'}</div>
         <div style="font-size:11px;color:var(--tx3);margin-top:1px">${pr?.name||''} · ${rm?.name||''}</div></div>
-        <div style="text-align:right"><div style="font-weight:600;color:var(--em)">${money(pay.amount)}</div>
+        <div style="text-align:right"><div style="font-weight:600;color:var(--em)">${₹(pay.amount)}</div>
         <div style="font-size:11px;color:var(--tx3)">${pay.date}</div></div>
       </div>`;
     }).join('')+'</div>';
@@ -502,9 +504,14 @@ function rPlaces(){
             <span style="font-size:11px;color:var(--tx3)">${pr.length} rooms · ${occ} occupied</span>
           </div>
         </div>
-        <button onclick="event.stopPropagation();delProp('${p.id}')"
-          style="background:none;border:none;color:var(--tx3);font-size:22px;cursor:pointer;padding:4px;flex-shrink:0;line-height:1;transition:color .2s"
-          onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--tx3)'">×</button>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0">
+          <button onclick="event.stopPropagation();openModal('property','${p.id}')"
+            style="background:none;border:none;color:var(--tx3);font-size:13px;cursor:pointer;padding:4px 8px;line-height:1;transition:color .2s"
+            onmouseover="this.style.color='var(--ind)'" onmouseout="this.style.color='var(--tx3)'">✎</button>
+          <button onclick="event.stopPropagation();delProp('${p.id}')"
+            style="background:none;border:none;color:var(--tx3);font-size:22px;cursor:pointer;padding:4px;flex-shrink:0;line-height:1;transition:color .2s"
+            onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--tx3)'">×</button>
+        </div>
       </div></div>`;
   }).join('');
 }
@@ -522,17 +529,21 @@ function rProp(){
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div>
           <div style="font-weight:700;font-size:15px">${r.name}</div>
-          <div style="font-size:12px;color:var(--tx3);margin-top:3px">${r.type} · ${money(r.rent)}/mo</div>
+          <div style="font-size:12px;color:var(--tx3);margin-top:3px">${r.type} · ${₹(r.rent)}/mo</div>
           ${t?`<div style="display:flex;align-items:center;gap:5px;margin-top:8px;font-size:13px;color:#a5b4fc">
               <span style="width:6px;height:6px;border-radius:50%;background:var(--em);flex-shrink:0;display:inline-block"></span>${t.name}</div>`
             :`<div style="display:flex;align-items:center;gap:5px;margin-top:8px;font-size:12px;color:var(--tx3)">
               <span style="width:6px;height:6px;border-radius:50%;background:var(--tx3);flex-shrink:0;display:inline-block"></span>Vacant</div>`}
         </div>
-        ${t?`<div style="text-align:right">
-          <div style="font-weight:700;font-size:15px;color:${bal<=0?'var(--em)':'var(--am)'}">${bal<=0?'✓ Paid':money(bal)+' due'}</div>
-          ${pd>0?`<div style="font-size:11px;color:var(--tx3);margin-top:2px">${money(pd)} paid</div>`:''}
-        </div>`:''}
-      </div></div>`;
+          ${t?`<div style="text-align:right">
+          <div style="font-weight:700;font-size:15px;color:${bal<=0?'var(--em)':'var(--am)'}">${bal<=0?'✓ Paid':₹(bal)+' due'}</div>
+          ${pd>0?`<div style="font-size:11px;color:var(--tx3);margin-top:2px">${₹(pd)} paid</div>`:''}
+          <button onclick="event.stopPropagation();openModal('room','${r.id}')"
+            style="background:none;border:none;color:var(--tx3);font-size:12px;cursor:pointer;margin-top:6px;padding:0;transition:color .2s"
+            onmouseover="this.style.color='var(--ind)'" onmouseout="this.style.color='var(--tx3)'">✎ Edit</button>
+        </div>`:`<button onclick="event.stopPropagation();openModal('room','${r.id}')"
+            style="background:none;border:none;color:var(--tx3);font-size:12px;cursor:pointer;padding:0;transition:color .2s;margin-top:8px"
+            onmouseover="this.style.color='var(--ind)'" onmouseout="this.style.color='var(--tx3)'">✎ Edit</button>`}
   }).join('');
 }
 
@@ -548,7 +559,7 @@ function rRoom(){
 
   let h=`<div class="rh">
     <div class="rh-l"><div class="rt">${room.type}</div><div class="rn">${room.name}</div></div>
-    <div class="rh-r"><div class="rl">Monthly Rent</div><div class="rr">${money(room.rent)}</div></div>
+    <div class="rh-r"><div class="rl">Monthly Rent</div><div class="rr">${₹(room.rent)}</div></div>
   </div>`;
 
   h+=tenant?`<div class="cd" style="margin-bottom:12px">
@@ -559,11 +570,11 @@ function rRoom(){
         ${tenant.phone?`<div style="font-size:13px;color:var(--tx2);margin-top:3px">📞 ${tenant.phone}</div>`:''}
         <div style="display:flex;gap:16px;margin-top:6px;flex-wrap:wrap">
           <div style="font-size:12px;color:var(--tx3)">In: ${tenant.moveIn}</div>
-          ${tenant.deposit>0?`<div style="font-size:12px;color:#a5b4fc">Deposit: ${money(tenant.deposit)}</div>`:''}
+          ${tenant.deposit>0?`<div style="font-size:12px;color:#a5b4fc">Deposit: ${₹(tenant.deposit)}</div>`:''}
         </div>
         ${tenant.leaseType==='fixed'&&tenant.leaseEnd?`<div style="font-size:12px;color:var(--am);margin-top:4px">Lease until: ${tenant.leaseEnd}</div>`:''}
       </div>
-      <button class="sbtn" onclick="openModal('tenant')">Change</button>
+      <button class="sbtn" onclick="openModal('tenant','${tenant.id}')">✎ Edit</button>
     </div></div>`
   :`<div class="cd" style="border-color:rgba(251,191,36,.3);text-align:center;padding:20px;margin-bottom:12px">
     <div style="color:var(--am);margin-bottom:12px">No tenant assigned</div>
@@ -572,7 +583,7 @@ function rRoom(){
   if(tenant){
     const prows=mPays.map(p=>`<div class="pr">
       <div><div class="pd">${p.date} · ${p.method}</div>${p.remarks?`<div class="pm">${p.remarks}</div>`:''}</div>
-      <div class="prr"><span class="pa">${money(p.amount)}</span>
+      <div class="prr"><span class="pa">${₹(p.amount)}</span>
         <button class="db" onclick="delPay('${p.id}')">×</button>
       </div></div>`).join('');
     h+=`<div class="cd" style="margin-bottom:12px">
@@ -581,9 +592,9 @@ function rRoom(){
         <button class="cbtn" onclick="openModal('payment')">+ Collect</button>
       </div>
       <div class="s3">
-        <div class="sc"><div class="sv">${money(room.rent)}</div><div class="sk">Due</div></div>
-        <div class="sc"><div class="sv" style="color:var(--em)">${money(paid)}</div><div class="sk">Paid</div></div>
-        <div class="sc"><div class="sv" style="color:${bal>0?'var(--am)':'var(--em)'}">${money(bal)}</div><div class="sk">Balance</div></div>
+        <div class="sc"><div class="sv">${₹(room.rent)}</div><div class="sk">Due</div></div>
+        <div class="sc"><div class="sv" style="color:var(--em)">${₹(paid)}</div><div class="sk">Paid</div></div>
+        <div class="sc"><div class="sv" style="color:${bal>0?'var(--am)':'var(--em)'}">${₹(bal)}</div><div class="sk">Balance</div></div>
       </div>
       ${prows?`<div style="margin-top:8px">${prows}</div>`:''}
     </div>`;
@@ -593,7 +604,7 @@ function rRoom(){
     h+=`<div class="sl" style="margin-top:4px">All History</div>
     <div class="cd" style="padding:4px 16px">${allP.map(p=>`<div class="pr">
       <div><div class="pd">${p.date} · ${p.method}</div><div class="pm">${p.monthKey}${p.remarks?' · '+p.remarks:''}</div></div>
-      <span class="pa">${money(p.amount)}</span></div>`).join('')}</div>`;
+      <span class="pa">${₹(p.amount)}</span></div>`).join('')}</div>`;
   }
 
   h+=`<button class="dbtn" onclick="delRoom('${room.id}')">Delete Room</button>`;
@@ -601,42 +612,50 @@ function rRoom(){
 }
 
 /* ── MODAL ─────────────────────────────────────────── */
-function openModal(type){
-  mState={type,leaseType:'open',method:'Cash'};
+function openModal(type, editId=null){
+  mState={type, editId, leaseType:'open', method:'Cash'};
   const k=mk();
+
+  // Prefill existing data if editing
+  const ep = editId && type==='property' ? S.data.properties.find(x=>x.id===editId) : null;
+  const er = editId && type==='room'     ? S.data.rooms.find(x=>x.id===editId)       : null;
+  const et = editId && type==='tenant'   ? S.data.tenants.find(x=>x.id===editId)     : null;
+  if(et) mState.leaseType = et.leaseType||'open';
+
   if(type==='property'){
-    $('mtl').textContent='Add Property';
+    $('mtl').textContent = ep ? 'Edit Property' : 'Add Property';
     $('mb').innerHTML=`
-      <div class="fg"><input class="fi" id="fn" placeholder="Property Name *" autocomplete="off"></div>
-      <div class="fg"><input class="fi" id="fa" placeholder="Address (optional)" autocomplete="off"></div>
+      <div class="fg"><input class="fi" id="fn" placeholder="Property Name *" autocomplete="off" value="${ep?.name||''}"></div>
+      <div class="fg"><input class="fi" id="fa" placeholder="Address (optional)" autocomplete="off" value="${ep?.address||''}"></div>
       <div class="fg"><select class="fs" id="ft">
-        <option>House</option><option>Apartment</option><option>Building</option><option>Shop</option><option>Plot</option>
+        ${['House','Apartment','Building','Shop','Plot'].map(o=>`<option${ep?.type===o?' selected':''}>${o}</option>`).join('')}
       </select></div>
       <button class="fsb" onclick="save()">Save Property</button>`;
   }else if(type==='room'){
-    $('mtl').textContent='Add Room';
+    $('mtl').textContent = er ? 'Edit Room' : 'Add Room';
     $('mb').innerHTML=`
-      <div class="fg"><input class="fi" id="fn" placeholder="Room Name *" autocomplete="off"></div>
+      <div class="fg"><input class="fi" id="fn" placeholder="Room Name *" autocomplete="off" value="${er?.name||''}"></div>
       <div class="fg"><select class="fs" id="ft">
-        <option>1BHK</option><option>2BHK</option><option>3BHK</option><option>Studio</option><option>Single Room</option><option>Shop</option><option>Office</option>
+        ${['1BHK','2BHK','3BHK','Studio','Single Room','Shop','Office'].map(o=>`<option${er?.type===o?' selected':''}>${o}</option>`).join('')}
       </select></div>
-      <div class="fg"><input class="fi" id="fr" type="number" placeholder="Monthly Rent (₹) *" inputmode="numeric"></div>
+      <div class="fg"><input class="fi" id="fr" type="number" placeholder="Monthly Rent (₹) *" inputmode="numeric" value="${er?.rent||''}"></div>
       <button class="fsb" onclick="save()">Save Room</button>`;
   }else if(type==='tenant'){
-    $('mtl').textContent='Add / Change Tenant';
+    $('mtl').textContent = et ? 'Edit Tenant' : 'Add Tenant';
+    const lt = et?.leaseType||'open';
     $('mb').innerHTML=`
-      <div class="fg"><input class="fi" id="fn" placeholder="Tenant Name *" autocomplete="off"></div>
-      <div class="fg"><input class="fi" id="fph" type="tel" placeholder="Phone Number" inputmode="tel"></div>
-      <div class="fg"><label class="fl">Move-In Date</label><input class="fi" id="fmi" type="date" value="${td()}"></div>
-      <div class="fg"><input class="fi" id="fdep" type="number" placeholder="Security Deposit (₹)" inputmode="numeric"></div>
+      <div class="fg"><input class="fi" id="fn" placeholder="Tenant Name *" autocomplete="off" value="${et?.name||''}"></div>
+      <div class="fg"><input class="fi" id="fph" type="tel" placeholder="Phone Number" inputmode="tel" value="${et?.phone||''}"></div>
+      <div class="fg"><label class="fl">Move-In Date</label><input class="fi" id="fmi" type="date" value="${et?.moveIn||td()}"></div>
+      <div class="fg"><input class="fi" id="fdep" type="number" placeholder="Security Deposit (₹)" inputmode="numeric" value="${et?.deposit||''}"></div>
       <div class="fg"><label class="fl">Lease Type</label>
         <div class="tr">
-          <div class="to on" id="lt-o" onclick="setLease('open')">Open-ended</div>
-          <div class="to" id="lt-f" onclick="setLease('fixed')">Fixed Period</div>
+          <div class="to${lt==='open'?' on':''}" id="lt-o" onclick="setLease('open')">Open-ended</div>
+          <div class="to${lt==='fixed'?' on':''}" id="lt-f" onclick="setLease('fixed')">Fixed Period</div>
         </div>
       </div>
-      <div class="fg" id="le-fg" style="display:none">
-        <label class="fl">Lease End Date</label><input class="fi" id="fle" type="date">
+      <div class="fg" id="le-fg" style="display:${lt==='fixed'?'block':'none'}">
+        <label class="fl">Lease End Date</label><input class="fi" id="fle" type="date" value="${et?.leaseEnd||''}">
       </div>
       <button class="fsb" onclick="save()">Save Tenant</button>`;
   }else if(type==='payment'){
@@ -646,7 +665,7 @@ function openModal(type){
     $('mtl').textContent='Record Payment';
     $('mb').innerHTML=`
       <div class="bb"><div class="bb-l">Balance Due — ${SMONTHS[S.month]} ${S.year}</div>
-      <div class="bb-v">${money(bal)}</div></div>
+      <div class="bb-v">${₹(bal)}</div></div>
       <div class="fg"><input class="fi" id="fam" type="number" placeholder="Amount Received (₹) *" value="${bal||''}" inputmode="numeric"></div>
       <div class="fg"><label class="fl">Payment Method</label>
         <div class="mr">${['Cash','UPI','Bank Transfer','Cheque','Online'].map((m,i)=>
@@ -673,26 +692,49 @@ function maybeClose(e){if(e.target===$('ovl'))closeModal()}
 
 function save(){
   const t=mState.type;
+  const eid=mState.editId;
   if(t==='property'){
     const name=$('fn')?.value.trim();
     if(!name){toast('Property name required');return}
-    S.data.properties.push({id:gid(),name,address:$('fa')?.value.trim()||'',type:$('ft')?.value||'House'});
+    if(eid){
+      const p=S.data.properties.find(x=>x.id===eid);
+      if(p){p.name=name;p.address=$('fa')?.value.trim()||'';p.type=$('ft')?.value||'House';}
+    }else{
+      S.data.properties.push({id:gid(),name,address:$('fa')?.value.trim()||'',type:$('ft')?.value||'House'});
+    }
   }else if(t==='room'){
     const name=$('fn')?.value.trim();
     const rent=parseInt($('fr')?.value||0);
     if(!name||!rent){toast('Name and rent required');return}
-    S.data.rooms.push({id:gid(),propertyId:S.propId,name,type:$('ft')?.value||'1BHK',rent});
+    if(eid){
+      const r=S.data.rooms.find(x=>x.id===eid);
+      if(r){r.name=name;r.type=$('ft')?.value||'1BHK';r.rent=rent;}
+    }else{
+      S.data.rooms.push({id:gid(),propertyId:S.propId,name,type:$('ft')?.value||'1BHK',rent});
+    }
   }else if(t==='tenant'){
     const name=$('fn')?.value.trim();
     if(!name){toast('Tenant name required');return}
-    S.data.tenants.forEach(tn=>{if(tn.roomId===S.roomId)tn.active=false});
-    S.data.tenants.push({id:gid(),roomId:S.roomId,name,
-      phone:$('fph')?.value.trim()||'',
-      moveIn:$('fmi')?.value||td(),
-      deposit:parseInt($('fdep')?.value||0),
-      leaseType:mState.leaseType,
-      leaseEnd:$('fle')?.value||'',
-      active:true});
+    if(eid){
+      const tn=S.data.tenants.find(x=>x.id===eid);
+      if(tn){
+        tn.name=name;
+        tn.phone=$('fph')?.value.trim()||'';
+        tn.moveIn=$('fmi')?.value||td();
+        tn.deposit=parseInt($('fdep')?.value||0);
+        tn.leaseType=mState.leaseType;
+        tn.leaseEnd=$('fle')?.value||'';
+      }
+    }else{
+      S.data.tenants.forEach(tn=>{if(tn.roomId===S.roomId)tn.active=false});
+      S.data.tenants.push({id:gid(),roomId:S.roomId,name,
+        phone:$('fph')?.value.trim()||'',
+        moveIn:$('fmi')?.value||td(),
+        deposit:parseInt($('fdep')?.value||0),
+        leaseType:mState.leaseType,
+        leaseEnd:$('fle')?.value||'',
+        active:true});
+    }
   }else if(t==='payment'){
     const amount=parseInt($('fam')?.value||0);
     if(!amount){toast('Enter a valid amount');return}
