@@ -437,37 +437,82 @@ function renderView(){
 function rDash(){
   const k=mk();
   $('ml').textContent=`${MONTHS[S.month]} ${S.year}`;
+
+  // Counts
+  const allRooms=S.data.rooms;
+  const totalProps=S.data.properties.length;
+  const occupied=allRooms.filter(r=>S.data.tenants.some(t=>t.roomId===r.id&&t.active)).length;
+  const vacant=allRooms.length-occupied;
+
+  // Money
   const active=S.data.tenants.filter(t=>t.active);
   const due=active.reduce((s,t)=>{const r=S.data.rooms.find(r=>r.id===t.roomId);return s+(r?.rent||0)},0);
   const coll=S.data.payments.filter(p=>p.monthKey===k).reduce((s,p)=>s+p.amount,0);
   const pend=Math.max(0,due-coll);
+
+  // Behind = tenants who have NOT fully paid this month
+  const behind=active.filter(t=>{
+    const r=S.data.rooms.find(r=>r.id===t.roomId);
+    const paid=S.data.payments.filter(p=>p.roomId===t.roomId&&p.monthKey===k).reduce((s,p)=>s+p.amount,0);
+    return paid<(r?.rent||0);
+  });
+
+  // KPI row 1 — property overview
   $('kr').innerHTML=`
-    <div class="kp i"><div class="kv">${active.length}</div><div class="kl">Tenants</div></div>
-    <div class="kp e"><div class="kv">${money(coll)}</div><div class="kl">Collected</div></div>
-    <div class="kp a"><div class="kv">${money(pend)}</div><div class="kl">Pending</div></div>`;
-  $('ps').innerHTML=due>0?`<div class="pwrap">
-    <div style="display:flex;justify-content:space-between;font-size:13px">
-      <span style="color:var(--tx2)">Collection Progress</span>
-      <span style="font-weight:600">${Math.round(coll/due*100)}%</span>
+    <div class="kp i"><div class="kv">${totalProps}</div><div class="kl">Properties</div></div>
+    <div class="kp e"><div class="kv">${occupied}</div><div class="kl">Occupied</div></div>
+    <div class="kp" style="background:rgba(148,163,184,.07);border-color:var(--bdr)"><div class="kv" style="color:var(--tx2)">${vacant}</div><div class="kl">Vacant</div></div>`;
+
+  // KPI row 2 — money overview
+  $('ps').innerHTML=`
+    <div class="kr" style="margin-bottom:16px">
+      <div class="kp e"><div class="kv">${money(coll)}</div><div class="kl">Collected</div></div>
+      <div class="kp a"><div class="kv">${money(pend)}</div><div class="kl">Pending</div></div>
+      <div class="kp" style="background:var(--red-bg);border-color:rgba(248,113,113,.2)"><div class="kv" style="color:var(--red)">${behind.length}</div><div class="kl">Behind</div></div>
     </div>
-    <div class="ptrk"><div class="pfil" style="width:${Math.min(100,coll/due*100)}%"></div></div>
-    <div class="pmt"><span>${money(coll)} collected</span><span>${money(due)} total due</span></div>
-  </div>` : '';
-  if(S.data.properties.length){
-    $('dp').innerHTML='<div class="sl">Properties</div>'+S.data.properties.map(p=>{
-      const pr=S.data.rooms.filter(r=>r.propertyId===p.id);
-      const occ=pr.filter(r=>S.data.tenants.some(t=>t.roomId===r.id&&t.active)).length;
-      const pc=S.data.payments.filter(x=>x.monthKey===k&&pr.some(r=>r.id===x.roomId)).reduce((s,x)=>s+x.amount,0);
-      const pd=pr.reduce((s,r)=>S.data.tenants.some(t=>t.roomId===r.id&&t.active)?s+r.rent:s,0);
-      return `<div class="cd lk" onclick="goProp('${p.id}')">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div><div style="font-weight:700;font-size:15px">${p.name}</div>
-          <div style="font-size:11px;color:var(--tx3);margin-top:3px">${pr.length} rooms · ${occ} occupied</div></div>
-          <div style="text-align:right"><div style="font-weight:700;color:var(--em)">${money(pc)}</div>
-          <div style="font-size:11px;color:var(--tx3)">of ${money(pd)}</div></div>
-        </div></div>`;
+    ${due>0?`<div class="pwrap">
+      <div style="display:flex;justify-content:space-between;font-size:13px">
+        <span style="color:var(--tx2)">Collection Progress</span>
+        <span style="font-weight:600">${Math.round(coll/due*100)}%</span>
+      </div>
+      <div class="ptrk"><div class="pfil" style="width:${Math.min(100,coll/due*100)}%"></div></div>
+      <div class="pmt"><span>${money(coll)} collected</span><span>${money(due)} total due</span></div>
+    </div>`:''}`;
+
+  // Tenants with outstanding balance — collect directly from here
+  if(behind.length){
+    const rows=behind.map(t=>{
+      const rm=S.data.rooms.find(r=>r.id===t.roomId);
+      const pr=rm?S.data.properties.find(p=>p.id===rm.propertyId):null;
+      const paid=S.data.payments.filter(p=>p.roomId===t.roomId&&p.monthKey===k).reduce((s,p)=>s+p.amount,0);
+      const bal=(rm?.rent||0)-paid;
+      return `<div class="rr" style="align-items:center">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600;color:var(--tx)">${t.name}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:2px">${pr?.name||''} · ${rm?.name||''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <div style="text-align:right">
+            <div style="font-weight:700;font-size:13px;color:var(--am)">${money(bal)}</div>
+            <div style="font-size:10px;color:var(--tx3)">balance</div>
+          </div>
+          <button onclick="openPaymentFor('${rm?.id}')"
+            style="background:var(--em-bg);color:var(--em);border:1px solid rgba(52,211,153,.3);font-family:'Sora',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;border-radius:99px;cursor:pointer;white-space:nowrap">
+            Collect
+          </button>
+        </div>
+      </div>`;
     }).join('');
-  }else $('dp').innerHTML='';
+    $('dp').innerHTML=`<div class="sl">Outstanding — ${SMONTHS[S.month]} ${S.year}</div>
+      <div class="cd" style="padding:4px 16px">${rows}</div>`;
+  } else if(active.length){
+    $('dp').innerHTML=`<div class="cd" style="border-color:rgba(52,211,153,.25);text-align:center;padding:18px">
+      <div style="font-size:22px">✓</div>
+      <div style="font-size:13px;color:var(--em);margin-top:4px;font-weight:600">All caught up for ${SMONTHS[S.month]}!</div>
+    </div>`;
+  } else $('dp').innerHTML='';
+
+  // Recent payments
   const rec=S.data.payments.filter(p=>p.monthKey===k).slice(-5).reverse();
   if(rec.length){
     $('dr').innerHTML='<div class="sl" style="margin-top:6px">Recent Payments</div><div class="cd" style="padding:4px 16px">'+rec.map(pay=>{
@@ -482,8 +527,15 @@ function rDash(){
       </div>`;
     }).join('')+'</div>';
   }else $('dr').innerHTML='';
+
   $('de').innerHTML=!S.data.properties.length?`<div class="emp"><div class="ei">🏘️</div>
     <div class="et">No properties yet</div><div class="es">Tap + to add your first property</div></div>`:'';
+}
+
+// Open payment modal for a specific room directly from dashboard
+function openPaymentFor(roomId){
+  S.roomId=roomId;
+  openModal('payment');
 }
 
 /* PLACES */
