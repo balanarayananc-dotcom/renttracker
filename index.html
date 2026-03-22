@@ -223,7 +223,8 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',sans-serif;color:v
 
   <!-- LOGIN -->
   <div id="ls" class="screen">
-    <div style="position:absolute;top:16px;right:16px">
+    <div style="position:absolute;top:16px;right:16px;display:flex;gap:8px">
+      <button class="thm-btn" id="install-btn-login" onclick="triggerInstall()" title="Install app" style="display:none">📲</button>
       <button class="thm-btn" onclick="toggleTheme()" title="Toggle light/dark mode" id="thm-btn-login">🌙</button>
     </div>
     <div class="logo">🏘️</div>
@@ -261,6 +262,7 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',sans-serif;color:v
       <div class="htl" id="htl">RentTracker</div>
       <div class="hrgt">
         <span class="syni" id="syn">⟳ Syncing</span>
+        <button class="thm-btn" id="install-btn" onclick="triggerInstall()" title="Install app" style="display:none">📲</button>
         <button class="thm-btn" id="thm-btn" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
         <div class="av" id="av" onclick="confirmSignOut()" title="Sign out">B</div>
       </div>
@@ -1241,66 +1243,45 @@ function delPay(pid){
 
 /* ── SERVICE WORKER + PWA INSTALL ──────────────────── */
 if('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('SW registered:', reg.scope))
-      .catch(err => console.log('SW registration failed:', err));
-  });
+  navigator.serviceWorker.register('/sw.js')
+    .then(reg => console.log('SW registered:', reg.scope))
+    .catch(err => console.log('SW failed:', err));
 }
 
-let deferredInstall;
+let deferredInstall = null;
+
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstall = e;
-  // Show install banner after user is in the app
-  setTimeout(() => showInstallBanner(), 3000);
+  // Show install button in header
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.style.display = 'flex';
+  // Also show in login screen
+  const btn2 = document.getElementById('install-btn-login');
+  if(btn2) btn2.style.display = 'flex';
 });
 
 window.addEventListener('appinstalled', () => {
   deferredInstall = null;
-  hideInstallBanner();
-  toast('App installed successfully ✓');
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.style.display = 'none';
+  const btn2 = document.getElementById('install-btn-login');
+  if(btn2) btn2.style.display = 'none';
+  toast('App installed! ✓ Open it from your home screen.');
 });
 
-function showInstallBanner(){
-  if(!deferredInstall) return;
-  if(localStorage.getItem('rt_install_dismissed')) return;
-  let b = document.getElementById('install-banner');
-  if(!b){
-    b = document.createElement('div');
-    b.id = 'install-banner';
-    b.style.cssText = `position:fixed;bottom:80px;left:12px;right:12px;max-width:424px;
-      margin:0 auto;background:var(--ind);color:#fff;border-radius:16px;padding:14px 16px;
-      display:flex;align-items:center;gap:12px;z-index:200;
-      box-shadow:0 8px 32px rgba(79,70,229,.5);font-family:'Sora',sans-serif;`;
-    b.innerHTML = `
-      <span style="font-size:24px">📲</span>
-      <div style="flex:1">
-        <div style="font-weight:700;font-size:14px">Install RentTracker</div>
-        <div style="font-size:12px;opacity:.85;margin-top:2px">Add to home screen for the best experience</div>
-      </div>
-      <button onclick="triggerInstall()" style="background:#fff;color:var(--ind);border:none;
-        font-family:'Sora',sans-serif;font-weight:700;font-size:13px;padding:8px 14px;
-        border-radius:10px;cursor:pointer;white-space:nowrap">Install</button>
-      <button onclick="hideInstallBanner(true)" style="background:none;border:none;color:#fff;
-        font-size:20px;cursor:pointer;padding:4px;opacity:.7;line-height:1">✕</button>`;
-    document.body.appendChild(b);
-  }
-  b.style.display = 'flex';
-}
-
-function hideInstallBanner(dismiss=false){
-  const b = document.getElementById('install-banner');
-  if(b) b.style.display = 'none';
-  if(dismiss) localStorage.setItem('rt_install_dismissed','1');
-}
-
 async function triggerInstall(){
-  if(!deferredInstall) return;
+  if(!deferredInstall){
+    toast('Open ⋮ menu → "Install app" or "Add to Home screen"');
+    return;
+  }
   deferredInstall.prompt();
   const { outcome } = await deferredInstall.userChoice;
-  if(outcome === 'accepted') deferredInstall = null;
-  hideInstallBanner();
+  if(outcome === 'accepted'){
+    deferredInstall = null;
+    const btn = document.getElementById('install-btn');
+    if(btn) btn.style.display = 'none';
+  }
 }
 </script>
 </body>
