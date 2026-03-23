@@ -967,10 +967,14 @@ function rProp(){
 function rRoom(){
   const room=S.data.rooms.find(r=>r.id===S.roomId);if(!room)return;
   const tenant=S.data.tenants.find(t=>t.roomId===S.roomId&&t.active);
-  const k=billMk();
-  const paid=S.data.payments.filter(p=>p.roomId===S.roomId&&p.monthKey===k).reduce((s,p)=>s+p.amount,0);
-  const bal=Math.max(0,(room.rent||0)-paid);
-  const mPays=S.data.payments.filter(p=>p.roomId===S.roomId&&p.monthKey===k);
+  const bk=billMk();
+  const paid=S.data.payments.filter(p=>p.roomId===S.roomId&&p.monthKey===bk).reduce((s,p)=>s+p.amount,0);
+  // Due for billing month — prorated if it is the move-in month
+  const dueMo=tenant?rentDueForMonth(room.id,tenant.id,bk):room.rent;
+  const balMo=Math.max(0,dueMo-paid);
+  // Cumulative total pending across all months
+  const totalPending=tenant?tenantBalance(tenant.id):0;
+  const mPays=S.data.payments.filter(p=>p.roomId===S.roomId&&p.monthKey===bk);
   const allP=S.data.payments.filter(p=>p.roomId===S.roomId).slice().reverse();
 
   let h=`<div class="rh">
@@ -990,15 +994,26 @@ function rRoom(){
         </div>
         ${tenant.leaseType==='fixed'&&tenant.leaseEnd?`<div style="font-size:12px;color:var(--am);margin-top:4px">Lease until: ${tenant.leaseEnd}</div>`:''}
       </div>
-      <button class="sbtn" onclick="openModal('tenant','${tenant.id}')">✎ Edit</button>
-      <button onclick="shareTenantStatement('${tenant.id}')" title="Share statement"
-        style="background:var(--ind-bg);color:var(--ind-lt);border:1px solid var(--ind);font-family:'Sora',-apple-system,sans-serif;font-size:16px;width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">↑</button>
+      <div style="display:flex;gap:8px">
+        <button class="sbtn" onclick="openModal('tenant','${tenant.id}')">✎ Edit</button>
+        <button onclick="shareTenantStatement('${tenant.id}')" title="Share statement"
+          style="background:var(--ind-bg);color:var(--ind-lt);border:1px solid var(--ind);font-family:'Sora',-apple-system,sans-serif;font-size:16px;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">↑</button>
+      </div>
     </div></div>`
   :`<div class="cd" style="border-color:rgba(251,191,36,.3);text-align:center;padding:20px;margin-bottom:12px">
     <div style="color:var(--am);margin-bottom:12px">No tenant assigned</div>
     <button class="sbtn" onclick="openModal('tenant')">Add Tenant</button></div>`;
 
   if(tenant){
+    // Find oldest month with outstanding balance
+    const bkMonths=monthsSinceMovein(tenant.id, billMk());
+    const firstUnpaid=bkMonths.find(mk=>{
+      const due=rentDueForMonth(room.id,tenant.id,mk);
+      const paid=S.data.payments.filter(p=>p.roomId===room.id&&p.monthKey===mk).reduce((s,p)=>s+p.amount,0);
+      return paid<due;
+    });
+    const [fuy,fum]=firstUnpaid?firstUnpaid.split('-').map(Number):[null,null];
+
     const prows=mPays.map(p=>`<div class="pr">
       <div><div class="pd">${p.date} · ${p.method}</div>${p.remarks?`<div class="pm">${p.remarks}</div>`:''}</div>
       <div class="prr">
@@ -1006,16 +1021,18 @@ function rRoom(){
         <button class="db" title="Edit" onclick="openModal('editpayment','${p.id}')" style="font-size:15px;color:var(--tx3)" onmouseover="this.style.color='var(--ind)'" onmouseout="this.style.color='var(--tx3)'">✎</button>
         <button class="db" title="Delete" onclick="delPay('${p.id}')">×</button>
       </div></div>`).join('');
+
     h+=`<div class="cd" style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div class="sl" style="margin:0">Rent for ${billLabel()}</div>
+        <div class="sl" style="margin:0">${firstUnpaid?`Due since ${SMONTHS[fum]} ${fuy}`:`Rent — ${billLabel()}`}</div>
         <button class="cbtn" onclick="openModal('payment')">+ Collect</button>
       </div>
       <div class="s3">
-        <div class="sc"><div class="sv">${money(room.rent)}</div><div class="sk">Due</div></div>
+        <div class="sc"><div class="sv">${money(dueMo)}</div><div class="sk">${billLabel()}${dueMo<room.rent?' (pro)':''}</div></div>
         <div class="sc"><div class="sv" style="color:var(--em)">${money(paid)}</div><div class="sk">Paid</div></div>
-        <div class="sc"><div class="sv" style="color:${bal>0?'var(--am)':'var(--em)'}">${money(bal)}</div><div class="sk">Balance</div></div>
+        <div class="sc"><div class="sv" style="color:${totalPending>0?'var(--red)':'var(--em)'}">${money(totalPending)}</div><div class="sk">Total Due</div></div>
       </div>
+      ${dueMo<room.rent?`<div style="font-size:11px;color:var(--tx3);margin-top:8px">* Prorated: ${daysInMonth(new Date(tenant.moveIn).getFullYear(),new Date(tenant.moveIn).getMonth())-(new Date(tenant.moveIn).getDate()-1)} days</div>`:''}
       ${prows?`<div style="margin-top:8px">${prows}</div>`:''}
     </div>`;
   }
@@ -1042,18 +1059,116 @@ function rRoom(){
 /* ── MODAL ─────────────────────────────────────────── */
 
 // Cumulative balance = total rent owed from moveIn up to billing month (prev month) minus all payments
+// Days in a given year/month (0-based month)
+function daysInMonth(y,m){return new Date(y,m+1,0).getDate()}
+
+// Prorated rent for the move-in month
+function proratedRent(rent, moveInDate){
+  const y=moveInDate.getFullYear(), m=moveInDate.getMonth();
+  const day=moveInDate.getDate(); // 1-based
+  const total=daysInMonth(y,m);
+  const occupied=total-day+1;
+  return Math.round((occupied/total)*rent);
+}
+
+// Cumulative balance = sum of rent owed from move-in to billing month (prorated first month) minus all payments
 function tenantBalance(tenantId){
   const t=S.data.tenants.find(x=>x.id===tenantId);if(!t)return 0;
   const room=S.data.rooms.find(r=>r.id===t.roomId);if(!room)return 0;
   const moveIn=new Date(t.moveIn);
-  // Billing month = selected month - 1
   let toM=S.month-1, toY=S.year;
   if(toM<0){toM=11;toY--;}
   const fromY=moveIn.getFullYear(), fromM=moveIn.getMonth();
-  const totalMonths=(toY-fromY)*12+(toM-fromM)+1;
-  const totalDue=Math.max(0,totalMonths)*(room.rent||0);
+  // If billing month is before move-in month, nothing is due yet
+  if(toY<fromY||(toY===fromY&&toM<fromM))return 0;
+  let totalDue=0, y=fromY, m=fromM;
+  while(y<toY||(y===toY&&m<=toM)){
+    totalDue+=(y===fromY&&m===fromM)?proratedRent(room.rent,moveIn):room.rent;
+    m++;if(m>11){m=0;y++;}
+  }
   const totalPaid=S.data.payments.filter(p=>p.roomId===room.id).reduce((s,p)=>s+p.amount,0);
   return Math.max(0,totalDue-totalPaid);
+}
+
+// Rent due for a specific month key (prorated if move-in month)
+function rentDueForMonth(roomId, tenantId, monthKey){
+  const room=S.data.rooms.find(r=>r.id===roomId);if(!room)return 0;
+  const t=S.data.tenants.find(x=>x.id===tenantId);if(!t)return 0;
+  const moveIn=new Date(t.moveIn);
+  const [ky,km]=monthKey.split('-').map(Number);
+  if(ky===moveIn.getFullYear()&&km===moveIn.getMonth())
+    return proratedRent(room.rent,moveIn);
+  return room.rent;
+}
+
+// Build list of month options for a select (last 36 months, newest first)
+function monthOptions(selectedKey){
+  const opts=[];
+  let y=S.year, m=S.month;
+  // include current selected month and go back 36
+  for(let i=0;i<36;i++){
+    m--;if(m<0){m=11;y--;}
+    const k=`${y}-${m}`;
+    opts.push(`<option value="${k}"${k===selectedKey?' selected':''}>${SMONTHS[m]} ${y}</option>`);
+  }
+  return opts.join('');
+}
+
+// All months from moveIn up to (and including) throughMonthKey, oldest first
+function monthsSinceMovein(tenantId, throughMonthKey){
+  const t=S.data.tenants.find(x=>x.id===tenantId);if(!t)return[];
+  const moveIn=new Date(t.moveIn);
+  const [toY,toM]=throughMonthKey.split('-').map(Number);
+  const months=[];
+  let y=moveIn.getFullYear(), m=moveIn.getMonth();
+  while(y<toY||(y===toY&&m<=toM)){
+    months.push(`${y}-${m}`);
+    m++;if(m>11){m=0;y++;}
+  }
+  return months;
+}
+
+// FIFO allocation: split totalAmount across oldest-unpaid months first
+// Returns [{monthKey, due, alreadyPaid, allocated}] for all months, with allocated>0 for touched ones
+function allocatePayment(roomId, tenantId, totalAmount, throughMonthKey){
+  const t=S.data.tenants.find(x=>x.id===tenantId);if(!t)return[];
+  const months=monthsSinceMovein(tenantId, throughMonthKey);
+  let remaining=totalAmount;
+  const result=[];
+  for(const mk of months){
+    const due=rentDueForMonth(roomId,tenantId,mk);
+    const paid=S.data.payments.filter(p=>p.roomId===roomId&&p.monthKey===mk).reduce((s,p)=>s+p.amount,0);
+    const outstanding=Math.max(0,due-paid);
+    if(outstanding<=0){result.push({monthKey:mk,due,alreadyPaid:paid,allocated:0});continue;}
+    const allocated=Math.min(remaining,outstanding);
+    result.push({monthKey:mk,due,alreadyPaid:paid,allocated});
+    remaining-=allocated;
+    if(remaining<=0)break;
+  }
+  return result;
+}
+
+// Render a small allocation preview table
+function renderAllocPreview(roomId, tenantId, amount, throughKey){
+  if(!tenantId||!amount||amount<=0)return'';
+  const alloc=allocatePayment(roomId,tenantId,amount,throughKey);
+  const touched=alloc.filter(a=>a.allocated>0);
+  if(!touched.length)return`<div style="font-size:12px;color:var(--em);text-align:center;padding:8px 0">✓ No outstanding dues through this month</div>`;
+  const [ky,km]=throughKey.split('-').map(Number);
+  const remaining=amount-touched.reduce((s,a)=>s+a.allocated,0);
+  let rows=touched.map(a=>{
+    const [ay,am]=a.monthKey.split('-').map(Number);
+    return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--bdr)">
+      <span style="color:var(--tx2)">${SMONTHS[am]} ${ay}</span>
+      <span style="color:var(--em);font-weight:600">${money(a.allocated)}</span>
+    </div>`;
+  }).join('');
+  if(remaining>0)rows+=`<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:var(--tx3)">
+    <span>Advance / excess</span><span>${money(remaining)}</span></div>`;
+  return`<div style="background:var(--bg3);border-radius:10px;padding:10px 12px;margin-top:8px">
+    <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);margin-bottom:6px">Allocation preview</div>
+    ${rows}
+  </div>`;
 }
 
 function openModal(type, editId=null){
@@ -1074,24 +1189,33 @@ function openModal(type, editId=null){
       $('ovl').classList.add('on');return;
     }
     const tenantOptions=active.map(t=>{
+      const bal=tenantBalance(t.id);
       const rm=S.data.rooms.find(r=>r.id===t.roomId);
       const pr=rm?S.data.properties.find(p=>p.id===rm.propertyId):null;
-      const bal=tenantBalance(t.id);
       return `<option value="${t.id}">${t.name} — ${pr?.name||''} / ${rm?.name||''} (${bal>0?money(bal)+' pending':'Paid up'})`;
     }).join('');
+    const firstT=active[0];
+    const initBal=firstT?tenantBalance(firstT.id):0;
+    const initRoom=firstT?S.data.rooms.find(r=>r.id===firstT.roomId):null;
+    mState.payThrough=billMk();
+    mState.payTenantId=firstT?.id||'';
+    mState.payRoomId=firstT?.roomId||'';
     $('mb').innerHTML=`
-      <div style="font-size:12px;color:var(--tx3);text-align:center;margin-bottom:14px">
-        Collecting rent for <strong style="color:var(--am)">${billLabelFull()}</strong>
-      </div>
       <div class="fg"><label class="fl">Select Tenant</label>
-        <select class="fs" id="f-ctenant" onchange="updateCollectBal(this.value)">${tenantOptions}</select>
+        <select class="fs" id="f-ctenant" onchange="onCollectTenantChange(this.value)">${tenantOptions}</select>
       </div>
-      <div class="bb" id="collect-bal-box">
+      <div class="bb" style="margin-bottom:12px">
         <div class="bb-l" id="collect-bal-lbl">Total Pending</div>
-        <div class="bb-v" id="collect-bal-val">—</div>
+        <div class="bb-v" id="collect-bal-val">${money(initBal)}</div>
       </div>
-      <div class="fg"><input class="fi" id="fam" type="number" placeholder="Amount Received (₹) *" inputmode="numeric"></div>
-      <div class="fg"><label class="fl">Payment Method</label>
+      <div class="fg"><label class="fl">Amount Received (₹) *</label>
+        <input class="fi" id="fam" type="number" inputmode="numeric" value="${initBal||''}"
+          oninput="refreshCollectPreview()"></div>
+      <div class="fg"><label class="fl">Paying dues through</label>
+        <select class="fs" id="f-cmk" onchange="mState.payThrough=this.value;refreshCollectPreview()">${monthOptions(billMk())}</select>
+      </div>
+      <div id="collect-alloc-preview">${renderAllocPreview(initRoom?.id,firstT?.id,initBal,billMk())}</div>
+      <div class="fg" style="margin-top:14px"><label class="fl">Payment Method</label>
         <div class="mr">${['Cash','UPI','Bank Transfer','Cheque','Online'].map((m,i)=>
           `<div class="mo${i===0?' on':''}" onclick="setMeth('${m}',this)">${m}</div>`
         ).join('')}</div>
@@ -1099,7 +1223,7 @@ function openModal(type, editId=null){
       <div class="fg"><label class="fl">Date</label><input class="fi" id="fdt" type="date" value="${td()}"></div>
       <div class="fg"><input class="fi" id="frm" placeholder="Remarks (optional)"></div>
       <button class="fsb" onclick="save()">Save Payment</button>`;
-    setTimeout(()=>updateCollectBal($('f-ctenant')?.value),50);
+    setTimeout(()=>refreshCollectPreview(),50);
   } else if(type==='property'){
     $('mtl').textContent = ep ? 'Edit Property' : 'Add Property';
     $('mb').innerHTML=`
@@ -1158,15 +1282,26 @@ function openModal(type, editId=null){
       <button onclick="delPay('${pay.id}');closeModal();" style="width:100%;margin-top:10px;background:none;border:2px solid var(--red);color:var(--red);font-family:'Sora',-apple-system,sans-serif;font-size:15px;font-weight:600;padding:14px;border-radius:14px;cursor:pointer;min-height:52px">Delete Payment</button>`;
   }else if(type==='payment'){
     const room=S.data.rooms.find(r=>r.id===S.roomId);
+    const tenant=S.data.tenants.find(t=>t.roomId===S.roomId&&t.active);
     const bk=billMk();
-    const pd=S.data.payments.filter(p=>p.roomId===S.roomId&&p.monthKey===bk).reduce((s,p)=>s+p.amount,0);
-    const bal=Math.max(0,(room?.rent||0)-pd);
+    const totalPend=tenant?tenantBalance(tenant.id):0;
+    mState.payThrough=bk;
+    mState.payRoomId=S.roomId;
+    mState.payTenantId=tenant?.id||'';
     $('mtl').textContent='Record Payment';
     $('mb').innerHTML=`
-      <div class="bb"><div class="bb-l">Rent for ${billLabelFull()}</div>
-      <div class="bb-v">${money(bal)}</div></div>
-      <div class="fg"><input class="fi" id="fam" type="number" placeholder="Amount Received (₹) *" value="${bal||''}" inputmode="numeric"></div>
-      <div class="fg"><label class="fl">Payment Method</label>
+      <div class="bb" style="margin-bottom:16px">
+        <div class="bb-l">Total Outstanding</div>
+        <div class="bb-v">${money(totalPend)}</div>
+      </div>
+      <div class="fg"><label class="fl">Amount Received (₹) *</label>
+        <input class="fi" id="fam" type="number" inputmode="numeric" value="${totalPend||''}"
+          oninput="refreshPayPreview()"></div>
+      <div class="fg"><label class="fl">Paying dues through</label>
+        <select class="fs" id="f-pmk" onchange="mState.payThrough=this.value;refreshPayPreview()">${monthOptions(bk)}</select>
+      </div>
+      <div id="alloc-preview">${renderAllocPreview(S.roomId,tenant?.id,totalPend,bk)}</div>
+      <div class="fg" style="margin-top:14px"><label class="fl">Payment Method</label>
         <div class="mr">${['Cash','UPI','Bank Transfer','Cheque','Online'].map((m,i)=>
           `<div class="mo${i===0?' on':''}" onclick="setMeth('${m}',this)">${m}</div>`
         ).join('')}</div>
@@ -1179,14 +1314,34 @@ function openModal(type, editId=null){
   setTimeout(()=>$('mb').querySelector('input,select')?.focus(),350);
 }
 
-function updateCollectBal(tenantId){
-  if(!tenantId)return;
-  const bal=tenantBalance(tenantId);
-  const el=$('collect-bal-val');const lbl=$('collect-bal-lbl');
-  if(el){el.textContent=bal>0?money(bal):'₹0 — All paid up';}
-  if(lbl){lbl.textContent=bal>0?'Total Pending (all months)':'Status';}
-  const am=$('fam');if(am&&bal>0)am.value=bal;else if(am)am.value='';
+function refreshPayPreview(){
+  const amount=parseInt($('fam')?.value||0);
+  const through=$('f-pmk')?.value||mState.payThrough;
+  const el=$('alloc-preview');
+  if(el)el.innerHTML=renderAllocPreview(mState.payRoomId,mState.payTenantId,amount,through);
 }
+
+function onCollectTenantChange(tenantId){
+  mState.payTenantId=tenantId;
+  const t=S.data.tenants.find(x=>x.id===tenantId);
+  mState.payRoomId=t?.roomId||'';
+  const bal=tenantBalance(tenantId);
+  const lbl=$('collect-bal-lbl');const val=$('collect-bal-val');
+  if(lbl)lbl.textContent='Total Pending';
+  if(val)val.textContent=bal>0?money(bal):'₹0 — Paid up';
+  const am=$('fam');if(am)am.value=bal>0?bal:'';
+  refreshCollectPreview();
+}
+
+function refreshCollectPreview(){
+  const amount=parseInt($('fam')?.value||0);
+  const through=$('f-cmk')?.value||mState.payThrough;
+  const el=$('collect-alloc-preview');
+  if(el)el.innerHTML=renderAllocPreview(mState.payRoomId,mState.payTenantId,amount,through);
+}
+
+// Keep for backward compat
+function updateCollectBal(tenantId){onCollectTenantChange(tenantId)}
 
 function setLease(t){
   mState.leaseType=t;
@@ -1213,15 +1368,31 @@ function save(){
       pay.remarks=$('frm')?.value.trim()||'';
     }
   } else if(t==='collect'){
-    const tenantId=$('f-ctenant')?.value;
+    const tenantId=mState.payTenantId||$('f-ctenant')?.value;
     const amount=parseInt($('fam')?.value||0);
     if(!tenantId||!amount){toast('Select tenant and enter amount');return}
+    const through=$('f-cmk')?.value||mState.payThrough||billMk();
     const ten=S.data.tenants.find(x=>x.id===tenantId);
-    S.data.payments.push({id:gid(),roomId:ten?.roomId||'',tenantId,
-      amount,method:mState.method,
-      date:$('fdt')?.value||td(),
-      monthKey:billMk(),
-      remarks:$('frm')?.value.trim()||''});
+    const roomId=ten?.roomId||'';
+    const date=$('fdt')?.value||td();
+    const remarks=$('frm')?.value.trim()||'';
+    const alloc=allocatePayment(roomId,tenantId,amount,through);
+    const splits=alloc.filter(a=>a.allocated>0);
+    const remaining=amount-splits.reduce((s,a)=>s+a.allocated,0);
+    if(splits.length){
+      splits.forEach(a=>S.data.payments.push({id:gid(),roomId,tenantId,
+        amount:a.allocated,method:mState.method,date,monthKey:a.monthKey,remarks}));
+      if(remaining>0)S.data.payments.push({id:gid(),roomId,tenantId,
+        amount:remaining,method:mState.method,date,monthKey:through,remarks:'Advance'});
+      const desc=splits.length===1?`Logged for ${SMONTHS[parseInt(splits[0].monthKey.split('-')[1])]}`:
+        `Split across ${splits.length} months`;
+      toast(`Saved ✓ — ${desc}`);
+    }else{
+      // No outstanding — log as advance against through month
+      S.data.payments.push({id:gid(),roomId,tenantId,amount,method:mState.method,date,monthKey:through,remarks:'Advance'});
+      toast('Saved as advance ✓');
+    }
+    closeModal();renderView();sched();return;
   } else if(t==='property'){
     const name=$('fn')?.value.trim();
     if(!name){toast('Property name required');return}
@@ -1267,12 +1438,27 @@ function save(){
   }else if(t==='payment'){
     const amount=parseInt($('fam')?.value||0);
     if(!amount){toast('Enter a valid amount');return}
-    const ten=S.data.tenants.find(tn=>tn.roomId===S.roomId&&tn.active);
-    S.data.payments.push({id:gid(),roomId:S.roomId,tenantId:ten?.id||'',
-      amount,method:mState.method,
-      date:$('fdt')?.value||td(),
-      monthKey:billMk(),
-      remarks:$('frm')?.value.trim()||''});
+    const through=mState.payThrough||billMk();
+    const roomId=mState.payRoomId||S.roomId;
+    const tenantId=mState.payTenantId||(S.data.tenants.find(tn=>tn.roomId===roomId&&tn.active)?.id||'');
+    const date=$('fdt')?.value||td();
+    const remarks=$('frm')?.value.trim()||'';
+    const alloc=allocatePayment(roomId,tenantId,amount,through);
+    const splits=alloc.filter(a=>a.allocated>0);
+    const remaining=amount-splits.reduce((s,a)=>s+a.allocated,0);
+    if(splits.length){
+      splits.forEach(a=>S.data.payments.push({id:gid(),roomId,tenantId,
+        amount:a.allocated,method:mState.method,date,monthKey:a.monthKey,remarks}));
+      if(remaining>0)S.data.payments.push({id:gid(),roomId,tenantId,
+        amount:remaining,method:mState.method,date,monthKey:through,remarks:'Advance'});
+      const desc=splits.length===1?`Logged for ${SMONTHS[parseInt(splits[0].monthKey.split('-')[1])]}`:
+        `Split across ${splits.length} months`;
+      toast(`Saved ✓ — ${desc}`);
+    }else{
+      S.data.payments.push({id:gid(),roomId,tenantId,amount,method:mState.method,date,monthKey:through,remarks:'Advance'});
+      toast('Saved as advance ✓');
+    }
+    closeModal();renderView();sched();return;
   }
   closeModal();renderView();sched();toast('Saved ✓');
 }
