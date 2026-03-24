@@ -221,16 +221,43 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',-apple-system,Blin
 
 /* ── DESKTOP LAYOUT (≥1024px) ── */
 @media(min-width:1024px){
-  /* Full viewport shell */
-  html,body{overflow:auto}
-  #app{max-width:100%;height:100dvh;flex-direction:row;overflow:hidden}
+  /* Reset html/body for full viewport */
+  html,body{overflow:hidden;height:100%;width:100%}
 
-  /* Sidebar */
-  #sidebar{display:flex;flex-direction:column;width:260px;min-width:260px;background:var(--bg2);border-right:1px solid var(--bdr);height:100%;overflow:hidden}
+  /* App shell — full width, horizontal */
+  #app{
+    max-width:100% !important;
+    width:100vw !important;
+    height:100dvh !important;
+    flex-direction:row !important;
+    overflow:hidden !important;
+    margin:0 !important;
+  }
+
+  /* App screen — inherit row from parent */
+  #as{
+    flex-direction:row !important;
+    width:100% !important;
+    height:100% !important;
+    max-width:100% !important;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar{
+    display:flex !important;
+    flex-direction:column;
+    width:260px;
+    min-width:260px;
+    max-width:260px;
+    background:var(--bg2);
+    border-right:1px solid var(--bdr);
+    height:100%;
+    overflow:hidden;
+    flex-shrink:0;
+  }
   #sidebar-top{padding:20px 18px 12px;border-bottom:1px solid var(--bdr);flex-shrink:0}
-  #sidebar-logo{font-size:20px;font-weight:800;color:var(--tx);display:flex;align-items:center;gap:8px;margin-bottom:4px}
-  #sidebar-logo span{font-size:26px}
-  #sidebar-sync{font-size:12px;color:var(--ind);animation:pulse 1s infinite;display:none}
+  #sidebar-logo{font-size:18px;font-weight:800;color:var(--tx);display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  #sidebar-logo span{font-size:24px}
   #sidebar-nav{display:flex;flex-direction:column;gap:2px;padding:10px 10px 0;flex-shrink:0}
   .snav-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:none;border:none;color:var(--tx2);font-family:'Sora',-apple-system,sans-serif;font-size:14px;font-weight:500;cursor:pointer;text-align:left;width:100%;transition:background .15s,color .15s}
   .snav-btn:hover{background:var(--bg3)}
@@ -244,54 +271,81 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',-apple-system,Blin
   .sprop-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:var(--tx2);transition:background .15s,color .15s}
   .sprop-item:hover{background:var(--bg3)}
   .sprop-item.on{background:var(--ind-bg);color:var(--ind-lt)}
-  .sprop-badge{font-size:11px;font-weight:700;background:var(--red-bg);color:var(--red);padding:1px 6px;border-radius:99px}
+  .sprop-badge{font-size:11px;font-weight:700;background:var(--red-bg);color:var(--red);padding:2px 7px;border-radius:99px;flex-shrink:0}
   .sprop-badge.ok{background:var(--em-bg);color:var(--em)}
   #sidebar-user{padding:12px 14px;border-top:1px solid var(--bdr);display:flex;align-items:center;gap:10px;flex-shrink:0}
-  #sidebar-user .av{width:36px;height:36px;font-size:13px}
-  #sidebar-user-name{font-size:13px;font-weight:600;color:var(--tx);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .sout-btn{background:none;border:1px solid var(--bdr2);color:var(--tx3);font-family:'Sora',-apple-system,sans-serif;font-size:12px;padding:5px 10px;border-radius:8px;cursor:pointer;transition:border-color .2s,color .2s;white-space:nowrap}
+  #sidebar-user .av{width:34px;height:34px;font-size:12px;flex-shrink:0}
+  #sidebar-user-name{font-size:13px;font-weight:600;color:var(--tx);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .sout-btn{background:none;border:1px solid var(--bdr2);color:var(--tx3);font-family:'Sora',-apple-system,sans-serif;font-size:12px;padding:5px 10px;border-radius:8px;cursor:pointer;transition:border-color .2s,color .2s;white-space:nowrap;flex-shrink:0}
   .sout-btn:hover{border-color:var(--red);color:var(--red)}
 
-  /* Main content area */
-  #main-area{flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden;min-width:0}
+  /* ── MAIN AREA ── */
+  #main-area{
+    flex:1 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    height:100% !important;
+    overflow:hidden !important;
+    min-width:0 !important;
+  }
 
-  /* Hide mobile header back button, bottom nav, mobile FAB on desktop */
-  #hdr .hbk{display:none!important}
-  #bn{display:none!important}
-  #fab{display:none!important}
+  /* Content scrolls, fills space */
+  #cnt{
+    flex:1;
+    overflow-y:auto;
+    padding:28px 32px;
+    padding-bottom:28px;
+  }
 
-  /* Header becomes top bar */
-  #hdr{padding:12px 24px;border-bottom:1px solid var(--bdr)}
+  /* Hide mobile-only elements */
+  #hdr .hbk{display:none !important}
+  #bn{display:none !important}
+  #fab{display:none !important}
+  /* Show desktop back button */
+  #desk-back{
+    display:flex !important;
+    align-items:center;
+    gap:6px;
+    background:none;
+    border:none;
+    color:var(--ind-lt);
+    font-family:'Sora',-apple-system,sans-serif;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    padding:4px 0;
+    margin-right:8px;
+    flex-shrink:0;
+  }
+  #desk-back:hover{opacity:.8}
+  /* Header */
+  #hdr{padding:14px 28px}
   .htl{font-size:18px}
 
-  /* Content padding */
-  #cnt{padding:24px;padding-bottom:24px}
-
-  /* Desktop: 2-up KPI on dashboard */
+  /* Dashboard KPIs — spread across 6 cols */
   .kr{grid-template-columns:repeat(6,1fr)}
 
-  /* Desktop: widen cards */
-  .cd{border-radius:14px}
-
-  /* Sheet modal: centered dialog on desktop */
+  /* Modal: centred dialog */
   #ovl{align-items:center;justify-content:center}
-  .sht{border-radius:20px;max-width:520px;max-height:85dvh;border:1px solid var(--bdr2);transform:scale(.95)}
+  .sht{
+    border-radius:20px !important;
+    max-width:540px;
+    max-height:85dvh;
+    border:1px solid var(--bdr2);
+    transform:scale(.96);
+    transition:transform .25s cubic-bezier(.32,.72,0,1);
+  }
   #ovl.on .sht{transform:scale(1)}
 
-  /* Toast: position above sidebar */
-  #tst{bottom:24px;left:50%}
-
-  /* Desktop: property view shows 2-col room grid */
-  #prop-rooms .cd{display:inline-block}
-
-  /* Desktop back button in header — show as text link */
-  #desk-back{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--ind-lt);font-family:'Sora',-apple-system,sans-serif;font-size:14px;font-weight:600;cursor:pointer;padding:4px 0;margin-right:8px}
-  #desk-back:hover{opacity:.8}
+  /* Toast */
+  #tst{bottom:24px}
 }
+
+/* ── MOBILE resets (ensure sidebar hidden, main-area transparent) ── */
 @media(max-width:1023px){
-  #sidebar{display:none}
+  #sidebar{display:none !important}
   #main-area{display:contents}
-  #desk-back{display:none!important}
+  #desk-back{display:none !important}
 }
 </style>
 </head>
@@ -711,9 +765,13 @@ function upNav(){
     $('snb-'+v)?.classList.toggle('on',S.view===v&&!S.propId&&!S.roomId);
   });
   const deep=S.view==='pr'||S.view==='r';
-  const bkbtn=$('bkbtn');if(bkbtn)bkbtn.style.display=deep?'flex':'none';
-  const dbk=$('desk-back');if(dbk)dbk.style.display=deep?'flex':'none';
-  $('bn').style.display=deep?'none':'flex';
+  const isDesktop=window.innerWidth>=1024;
+  // Mobile back btn
+  const bkbtn=$('bkbtn');if(bkbtn)bkbtn.style.display=(!isDesktop&&deep)?'flex':'none';
+  // Desktop back btn — CSS handles hide on mobile, just toggle display on desktop
+  const dbk=$('desk-back');if(dbk)dbk.style.display=(isDesktop&&deep)?'flex':'none';
+  // Bottom nav — hide when deep on mobile; CSS hides it entirely on desktop
+  const bn=$('bn');if(bn&&!isDesktop)bn.style.display=deep?'none':'flex';
   const titles={d:'Dashboard',p:'My Properties',
     pr:S.data.properties.find(x=>x.id===S.propId)?.name||'',
     r:S.data.rooms.find(x=>x.id===S.roomId)?.name||''};
@@ -1699,6 +1757,10 @@ async function triggerInstall(){
     if(btn) btn.style.display = 'none';
   }
 }
+
+// Re-run upNav on resize so mobile/desktop back buttons switch correctly
+window.addEventListener('resize', () => { if(window.token||token) upNav(); });
+
 </script>
 </body>
 </html>
