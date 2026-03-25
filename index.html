@@ -62,6 +62,9 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',-apple-system,Blin
 
 /* ── LOGIN ── */
 #ls{align-items:center;justify-content:center;gap:22px;padding:40px 28px;background:var(--bg)}
+.ls-panel-left{display:contents} /* mobile: show children directly in flex flow */
+#ls-right-panel{display:none}    /* hide right panel on mobile */
+#thm-btn-login-desk{display:none} /* hide desktop panel theme btn on mobile */
 .logo{font-size:64px;line-height:1}
 .appname{font-size:30px;font-weight:800;letter-spacing:-.5px}
 .apptag{font-size:15px;color:var(--tx2);text-align:center;line-height:1.7}
@@ -308,6 +311,27 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',-apple-system,Blin
   #bn{display:none !important}
   #fab{display:none !important}
 
+  /* Desktop "Add" button in header — replaces FAB */
+  .desk-add-btn{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--ind);
+    border:none;
+    color:#fff;
+    font-family:'Sora',-apple-system,sans-serif;
+    font-size:14px;
+    font-weight:700;
+    padding:0 18px;
+    height:38px;
+    border-radius:99px;
+    cursor:pointer;
+    transition:background .2s,transform .15s;
+    flex-shrink:0;
+  }
+  .desk-add-btn:hover{background:var(--ind-d)}
+  .desk-add-btn:active{transform:scale(.96)}
+
   /* Desktop back button */
   #desk-back{
     display:none; /* shown by JS when deep */
@@ -344,6 +368,91 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',-apple-system,Blin
   #ovl.on .sht{transform:scale(1) !important}
 
   #tst{bottom:24px}
+
+  /* ── DESKTOP LOGIN ── */
+  #ls{
+    flex-direction:row;
+    gap:0;
+    padding:0;
+    justify-content:center;
+    align-items:stretch;
+  }
+  .ls-panel-left{
+    flex:1;
+    max-width:520px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:24px;
+    padding:60px 64px;
+    background:var(--bg2);
+    border-right:1px solid var(--bdr);
+  }
+  .ls-panel-right{
+    flex:1;
+    background:var(--rh-bg);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:20px;
+    padding:60px 48px;
+  }
+  #ls-right-panel{display:flex !important}
+  #ls-mobile-controls{display:none !important}
+  #thm-btn-login-desk{display:flex !important}
+  .ls-right-title{
+    font-size:32px;
+    font-weight:800;
+    color:#fff;
+    text-align:center;
+    line-height:1.25;
+  }
+  .ls-right-sub{
+    font-size:15px;
+    color:rgba(255,255,255,.75);
+    text-align:center;
+    line-height:1.7;
+    max-width:340px;
+  }
+  .ls-feature{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.2);
+    border-radius:12px;
+    padding:12px 16px;
+    width:100%;
+    max-width:340px;
+    font-size:14px;
+    color:rgba(255,255,255,.9);
+    font-weight:500;
+  }
+  .ls-feature-icon{font-size:20px;flex-shrink:0}
+
+  /* Sidebar theme toggle button */
+  #sidebar-thm{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 10px;
+    border-radius:10px;
+    background:none;
+    border:1px solid var(--bdr2);
+    color:var(--tx2);
+    font-family:'Sora',-apple-system,sans-serif;
+    font-size:13px;
+    font-weight:500;
+    cursor:pointer;
+    transition:background .15s,color .15s;
+    margin:8px 10px 0;
+    width:calc(100% - 20px);
+    flex-shrink:0;
+  }
+  #sidebar-thm:hover{background:var(--bg3);color:var(--tx)}
+  #sidebar-thm-icon{font-size:16px}
 }
 
 /* ── MOBILE: hide sidebar, flatten main-area wrapper ── */
@@ -351,6 +460,7 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',-apple-system,Blin
   #sidebar{display:none !important}
   #main-area{display:contents !important}
   #desk-back{display:none !important}
+  .desk-add-btn{display:none !important}
 }
 </style>
 </head>
@@ -371,29 +481,44 @@ window.addEventListener('unhandledrejection',function(e){
 
   <!-- LOGIN -->
   <div id="ls" class="screen">
-    <div style="position:absolute;top:16px;right:16px;display:flex;gap:8px">
+    <!-- Mobile-only top-right controls -->
+    <div id="ls-mobile-controls" style="position:absolute;top:16px;right:16px;display:flex;gap:8px;z-index:5">
       <button class="thm-btn" id="install-btn-login" onclick="triggerInstall()" title="Install app" style="display:none">📲</button>
       <button class="thm-btn" onclick="toggleTheme()" title="Toggle light/dark mode" id="thm-btn-login">🌙</button>
     </div>
-    <div class="logo">🏘️</div>
-    <div class="appname">RentTracker</div>
-    <div class="apptag">Manage your rental properties.<br>Data syncs across all family devices via Google Drive.</div>
-    <div class="wbox" id="wb">
-      ⚠️ <strong>One-time setup needed:</strong><br><br>
-      1. Open this <code>index.html</code> in a text editor<br>
-      2. Find the line: <code>YOUR_CLIENT_ID_HERE</code><br>
-      3. Replace it with your Google OAuth 2.0 Client ID<br>
-      4. Follow the full steps in <code>SETUP_GUIDE.txt</code>
+    <!-- Left panel (becomes full-screen on mobile) -->
+    <div class="ls-panel-left">
+      <div class="logo">🏘️</div>
+      <div class="appname">RentTracker</div>
+      <div class="apptag">Manage your rental properties.<br>Data syncs across all family devices via Google Drive.</div>
+      <div class="wbox" id="wb">
+        ⚠️ <strong>One-time setup needed:</strong><br><br>
+        1. Open this <code>index.html</code> in a text editor<br>
+        2. Find the line: <code>YOUR_CLIENT_ID_HERE</code><br>
+        3. Replace it with your Google OAuth 2.0 Client ID<br>
+        4. Follow the full steps in <code>SETUP_GUIDE.txt</code>
+      </div>
+      <button class="gbtn" onclick="signIn()">
+        <svg width="20" height="20" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Sign in with Google
+      </button>
+      <!-- Desktop-only theme toggle inside left panel -->
+      <button id="thm-btn-login-desk" class="thm-btn" onclick="toggleTheme()" title="Toggle light/dark mode" style="margin-top:4px">🌙</button>
     </div>
-    <button class="gbtn" onclick="signIn()">
-      <svg width="20" height="20" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
-      Sign in with Google
-    </button>
+    <!-- Right panel — desktop only (hidden on mobile via CSS) -->
+    <div class="ls-panel-right" id="ls-right-panel">
+      <div style="font-size:56px">🏘️</div>
+      <div class="ls-right-title">Track rent.<br>Stay organised.</div>
+      <div class="ls-right-sub">One place to manage all your properties, rooms, tenants and payments — synced across every device.</div>
+      <div class="ls-feature"><span class="ls-feature-icon">📊</span>Live dashboard with collection progress</div>
+      <div class="ls-feature"><span class="ls-feature-icon">☁️</span>Google Drive sync — no server needed</div>
+      <div class="ls-feature"><span class="ls-feature-icon">📄</span>One-tap rent statement sharing</div>
+    </div>
   </div>
 
   <!-- LOADING -->
@@ -420,6 +545,11 @@ window.addEventListener('unhandledrejection',function(e){
           <span class="snav-icon">🏘️</span>Properties
         </button>
       </div>
+      <!-- Sidebar theme toggle -->
+      <button id="sidebar-thm" onclick="toggleTheme()">
+        <span id="sidebar-thm-icon">🌙</span>
+        <span id="sidebar-thm-label">Dark Mode</span>
+      </button>
       <div id="sidebar-props"></div>
       <div id="sidebar-user">
         <div class="av" id="av-desk" onclick="confirmSignOut()" title="Sign out">B</div>
@@ -437,6 +567,7 @@ window.addEventListener('unhandledrejection',function(e){
       <div class="hrgt">
         <span class="syni" id="syn">⟳ Syncing</span>
         <button class="thm-btn" id="install-btn" onclick="triggerInstall()" title="Install app" style="display:none">📲</button>
+        <button class="desk-add-btn" id="desk-add-btn" onclick="fabClick()" title="Add new">+ Add</button>
         <button class="thm-btn" id="thm-btn" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
         <div class="av" id="av" onclick="confirmSignOut()" title="Sign out">B</div>
       </div>
@@ -528,9 +659,14 @@ function parseLocalDate(s){
 function applyTheme(t, persist=false){
   document.documentElement.setAttribute('data-theme', t);
   const icon = t==='dark' ? '🌙' : '☀️';
-  const b1=$('thm-btn'); const b2=$('thm-btn-login');
+  const b1=$('thm-btn'); const b2=$('thm-btn-login'); const b3=$('thm-btn-login-desk');
   if(b1)b1.textContent=icon;
   if(b2)b2.textContent=icon;
+  if(b3)b3.textContent=icon;
+  // Sidebar theme toggle
+  const si=$('sidebar-thm-icon'); const sl=$('sidebar-thm-label');
+  if(si)si.textContent=icon;
+  if(sl)sl.textContent=t==='dark'?'Dark Mode':'Light Mode';
   // Update status bar colour
   const mc=document.getElementById('theme-color-meta');
   if(mc)mc.setAttribute('content', t==='dark'?'#020617':'#f0f4ff');
@@ -775,6 +911,8 @@ function upNav(){
   const bkbtn=$('bkbtn');if(bkbtn)bkbtn.style.display=(!isDesktop&&deep)?'flex':'none';
   // Desktop back btn — CSS handles hide on mobile, just toggle display on desktop
   const dbk=$('desk-back');if(dbk)dbk.style.display=(isDesktop&&deep)?'flex':'none';
+  // Desktop Add button — shown on desktop only
+  const dab=$('desk-add-btn');if(dab)dab.style.display=isDesktop?'flex':'none';
   // Bottom nav — hide when deep on mobile; CSS hides it entirely on desktop
   const bn=$('bn');if(bn&&!isDesktop)bn.style.display=deep?'none':'flex';
   const titles={d:'Dashboard',p:'My Properties',
@@ -1763,7 +1901,7 @@ async function triggerInstall(){
   }
 }
 
-// Re-run upNav on resize so mobile/desktop back buttons switch correctly
+// Re-run upNav on resize so mobile/desktop back buttons switch correctly at 992px
 window.addEventListener('resize', () => { if(window.token||token) upNav(); });
 
 </script>
