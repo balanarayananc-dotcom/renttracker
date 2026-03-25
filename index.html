@@ -219,27 +219,29 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',-apple-system,Blin
 .badge-due{background:var(--am-bg);color:var(--am);border:1px solid var(--am)}
 .badge-behind{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
 
-/* ── DESKTOP LAYOUT (≥1024px) ── */
-@media(min-width:1024px){
-  /* Reset html/body for full viewport */
-  html,body{overflow:hidden;height:100%;width:100%}
-
-  /* App shell — full width, horizontal */
+/* ── DESKTOP LAYOUT (≥992px) ── */
+@media(min-width:992px){
+  /* #app stays flex-column (stacks screens), but goes full-width */
   #app{
     max-width:100% !important;
     width:100vw !important;
-    height:100dvh !important;
-    flex-direction:row !important;
-    overflow:hidden !important;
     margin:0 !important;
+    position:static !important;
+    overflow:visible !important;
   }
 
-  /* App screen — inherit row from parent */
+  /* Login & loading screens: centred, full screen as before */
+  #ls,#loading-screen{width:100vw;height:100dvh}
+
+  /* App screen becomes a horizontal row: sidebar | main-area */
   #as{
+    display:flex !important;
     flex-direction:row !important;
-    width:100% !important;
-    height:100% !important;
+    width:100vw !important;
+    height:100dvh !important;
     max-width:100% !important;
+    overflow:hidden !important;
+    position:relative !important;
   }
 
   /* ── SIDEBAR ── */
@@ -249,11 +251,13 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',-apple-system,Blin
     width:260px;
     min-width:260px;
     max-width:260px;
+    height:100%;
     background:var(--bg2);
     border-right:1px solid var(--bdr);
-    height:100%;
     overflow:hidden;
     flex-shrink:0;
+    position:relative;
+    z-index:10;
   }
   #sidebar-top{padding:20px 18px 12px;border-bottom:1px solid var(--bdr);flex-shrink:0}
   #sidebar-logo{font-size:18px;font-weight:800;color:var(--tx);display:flex;align-items:center;gap:8px;margin-bottom:4px}
@@ -285,25 +289,28 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',-apple-system,Blin
     display:flex !important;
     flex-direction:column !important;
     height:100% !important;
-    overflow:hidden !important;
     min-width:0 !important;
+    overflow:hidden !important;
+    position:relative !important;
   }
 
-  /* Content scrolls, fills space */
+  /* Content: scrolls inside main-area */
   #cnt{
-    flex:1;
-    overflow-y:auto;
-    padding:28px 32px;
-    padding-bottom:28px;
+    flex:1 !important;
+    overflow-y:auto !important;
+    padding:28px 32px !important;
+    padding-bottom:28px !important;
+    height:0 !important; /* forces flex to govern height, not content */
   }
 
-  /* Hide mobile-only elements */
+  /* Hide mobile-only chrome */
   #hdr .hbk{display:none !important}
   #bn{display:none !important}
   #fab{display:none !important}
-  /* Show desktop back button */
+
+  /* Desktop back button */
   #desk-back{
-    display:flex !important;
+    display:none; /* shown by JS when deep */
     align-items:center;
     gap:6px;
     background:none;
@@ -318,11 +325,10 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',-apple-system,Blin
     flex-shrink:0;
   }
   #desk-back:hover{opacity:.8}
-  /* Header */
   #hdr{padding:14px 28px}
   .htl{font-size:18px}
 
-  /* Dashboard KPIs — spread across 6 cols */
+  /* Dashboard KPIs — 6 cols */
   .kr{grid-template-columns:repeat(6,1fr)}
 
   /* Modal: centred dialog */
@@ -335,16 +341,15 @@ html,body{height:100%;background:var(--bg);font-family:'Sora',-apple-system,Blin
     transform:scale(.96);
     transition:transform .25s cubic-bezier(.32,.72,0,1);
   }
-  #ovl.on .sht{transform:scale(1)}
+  #ovl.on .sht{transform:scale(1) !important}
 
-  /* Toast */
   #tst{bottom:24px}
 }
 
-/* ── MOBILE resets (ensure sidebar hidden, main-area transparent) ── */
-@media(max-width:1023px){
+/* ── MOBILE: hide sidebar, flatten main-area wrapper ── */
+@media(max-width:991px){
   #sidebar{display:none !important}
-  #main-area{display:contents}
+  #main-area{display:contents !important}
   #desk-back{display:none !important}
 }
 </style>
@@ -765,7 +770,7 @@ function upNav(){
     $('snb-'+v)?.classList.toggle('on',S.view===v&&!S.propId&&!S.roomId);
   });
   const deep=S.view==='pr'||S.view==='r';
-  const isDesktop=window.innerWidth>=1024;
+  const isDesktop=window.innerWidth>=992;
   // Mobile back btn
   const bkbtn=$('bkbtn');if(bkbtn)bkbtn.style.display=(!isDesktop&&deep)?'flex':'none';
   // Desktop back btn — CSS handles hide on mobile, just toggle display on desktop
