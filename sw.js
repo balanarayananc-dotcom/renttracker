@@ -1,4 +1,4 @@
-const CACHE = 'renttracker-v1';
+const CACHE = 'renttracker-v2';
 const ASSETS = [
   '/',
   '/index.html',

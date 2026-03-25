@@ -1859,10 +1859,19 @@ document.addEventListener('DOMContentLoaded', function(){
   l.href='https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap';
   document.head.appendChild(l);
 })();
-if('serviceWorker' in navigator){
+if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
     .then(reg => console.log('SW registered:', reg.scope))
     .catch(err => console.log('SW failed:', err));
+
+  // Forces the page to reload when the new v2 Service Worker takes over
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload(); 
+    }
+  });
 }
 
 let deferredInstall = null;
